@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<init>
+		<setStringFromProperty result="GameID" ini="Game" section="HaoYouKuaiBao" property="GameID" default=""/>	
+		<setIntFromProperty result="Orientation" ini="Game" section="HaoYouKuaiBao" property="Orientation" default="1"/>
+	</init>
+
+	<resourceCopies>
+		<copyFile src="$S(PluginDir)/Android/config/hykb_login.ini" dst="$S(BuildDir)/assets/hykb_login.ini" force="true"/>
+		<copyFile src="$S(PluginDir)/Android/config/hykb_anti.ini" dst="$S(BuildDir)/assets/hykb_anti.ini" force="true"/>
+		<copyFile src="$S(PluginDir)/Android/libs/hykb-single.aar" dst="$S(BuildDir)/libs/HaoYouKuaiBao/hykb-single.aar" force="true"/>
+		<copyFile src="$S(PluginDir)/Android/libs/hykb-anti.aar" dst="$S(BuildDir)/libs/HaoYouKuaiBao/hykb-anti.aar" force="true"/>
+		<copyFile src="$S(PluginDir)/Android/libs/hykb-login.aar" dst="$S(BuildDir)/libs/HaoYouKuaiBao/hykb-login.aar" force="true"/>
+		<copyFile src="$S(PluginDir)/Android/libs/hykb-common.aar" dst="$S(BuildDir)/libs/HaoYouKuaiBao/hykb-common.aar" force="true"/>
+	</resourceCopies>
+	
+	<proguardAdditions>
+		<insert>
+-keep class com.m3839.sdk.common.**{*;}
+-keep class com.m3839.sdk.anti.**{*;}
+-keep class com.m3839.sdk.user.**{*;}
+-keep class com.m3839.sdk.login.**{*;}
+-keep class com.m3839.sdk.single.**{*;}
+-keepclasseswithmembernames class com.m3839.sdk.common.js.JsInterface {
+    &lt;methods>&gt;;
+}
+		</insert>
+	</proguardAdditions>
+
+	<gameActivityImportAdditions>
+		<insert>
+import com.m3839.sdk.login.listener.HykbV2InitListener;
+import com.m3839.sdk.login.listener.HykbUserListener;
+import com.m3839.sdk.login.listener.HykbAntiListener;
+import com.m3839.sdk.login.HykbLogin;
+import com.m3839.sdk.login.bean.HykbUser;
+import com.m3839.sdk.single.UnionFcmSDK;
+import com.m3839.sdk.single.UnionFcmParam;
+import com.m3839.sdk.single.UnionFcmParam.Builder;
+import com.m3839.sdk.single.UnionV2FcmListener;
+import com.m3839.sdk.single.UnionFcmUser;
+		</insert>
+	</gameActivityImportAdditions>
+	
+	<gameActivityClassAdditions>
+		<insert>
+	// 初始化回调
+	public native void nativeHaoYouKuaiBaoInitComplete(String data);
+	// 登录回调
+	public native void nativeHaoYouKuaiBaoLoginComplete(String data);
+	// 注销回调
+	public native void nativeHaoYouKuaiBaoLogoutComplete(String data);
+	// 防沉迷回调
+	public native void nativeHaoYouKuaiBaoAntiAddictionEvent(String data);
+
+	// 执行初始化逻辑
+	public void AndroidThunkJava_HaoYouKuaiBao_Init() {
+		Log.debug("AndroidThunkJava_HaoYouKuaiBao_Init");
+
+		// SDK初始化方法
+		HykbLogin.init(this, "</insert><insertValue value="$S(GameID)"/><insert>", </insert><insertValue value="$I(Orientation)"/><insert>, new HykbV2InitListener(){
+			@Override
+			public void onSucceed() {
+				Log.debug("初始化好游快爆SDK成功");
+
+				nativeHaoYouKuaiBaoInitComplete(OAuthLogin.makeOAuthInitData(OAuthLogin.RESPONSE_SUCCESS));
+			}
+
+			@Override
+			public void onFailed(int code, String message) {
+				Log.debug("onInitClick onInitError code:" + code + ",message:" + message);
+						
+				nativeHaoYouKuaiBaoInitComplete(OAuthLogin.makeOAuthInitData(OAuthLogin.RESPONSE_SYSTEM_ERROR));
+			}
+		});
+	}
+
+	// 先尝试静默登录，如果失败则显式登录
+	public void AndroidThunkJava_HaoYouKuaiBao_Login() {
+		Log.debug("AndroidThunkJava_HaoYouKuaiBao_Login");
+
+		HykbUser user = HykbLogin.getUser();
+		if (user != null){
+			Log.debug("好游快爆登录成功 user = " + user.toString());
+
+			nativeHaoYouKuaiBaoLoginComplete(OAuthLogin.makeOAuthLoginData(OAuthLogin.RESPONSE_SUCCESS, getOAuthData(user)));
+			return;
+		}
+				
+		HykbLogin.login(this);
+				
+		// 设置快爆用户登录相关信息监听
+		HykbLogin.setUserListener(new HykbUserListener() {
+			@Override
+			public void onLoginSucceed(HykbUser user) {
+				Log.debug("好游快爆登录成功 user = " + user.toString());
+						
+				nativeHaoYouKuaiBaoLoginComplete(OAuthLogin.makeOAuthLoginData(OAuthLogin.RESPONSE_SUCCESS, getOAuthData(user)));
+			}
+
+			@Override
+			public void onLoginFailed(int code, String message) {
+				Log.debug("好游快爆登录失败：code:" + code + "，message:" + message);
+						
+				nativeHaoYouKuaiBaoLoginComplete(OAuthLogin.makeOAuthLoginData(OAuthLogin.RESPONSE_SYSTEM_ERROR, null));
+			}
+
+			@Override
+			public void onSwitchUser(HykbUser user){
+				Log.debug("好游快爆帐号切换 user = " + user.toString());
+
+				nativeHaoYouKuaiBaoLoginComplete(OAuthLogin.makeOAuthLoginData(OAuthLogin.RESPONSE_SUCCESS, getOAuthData(user)));
+			}
+		});
+	};
+
+	// 注销登录
+	public void AndroidThunkJava_HaoYouKuaiBao_Logout() {
+		Log.debug("AndroidThunkJava_HaoYouKuaiBao_Logout");
+				
+		HykbLogin.logout(this);
+		
+		nativeHaoYouKuaiBaoLogoutComplete(OAuthLogin.makeOAuthLogoutData(OAuthLogin.RESPONSE_SUCCESS));
+	};
+
+	// 防沉迷初始化
+	public void AndroidThunkJava_HaoYouKuaiBao_StartupAntiAddiction() {
+		Log.debug("AndroidThunkJava_HaoYouKuaiBao_StartupAntiAddiction");
+
+		UnionFcmParam param = new UnionFcmParam.Builder()
+		.setGameId("</insert><insertValue value="$S(GameID)"/><insert>")
+		.setOrientation(</insert><insertValue value="$I(Orientation)"/><insert>)
+		.build();
+				
+		// UnionFcmSDK.setDebug(true);	// true：open log output
+		UnionFcmSDK.init(this, param, new UnionV2FcmListener(){					
+			@Override
+			public void onSucceed(UnionFcmUser user) {
+				if(user != null) {
+					Log.debug("好游快爆防沉迷初始化成功 user = " + user.toString());
+
+					nativeHaoYouKuaiBaoAntiAddictionEvent(OAuthLogin.makeAntiAddictionEventData(OAuthLogin.ANTI_ADDICTION_INIT, OAuthLogin.RESPONSE_SUCCESS, getAntiAddictionData(user)));
+				}
+			}
+
+			@Override
+			public void onFailed(int code, String message) {
+				Log.debug("防沉迷初始化成功失败：code:" + code + "，message:" + message);
+
+				nativeHaoYouKuaiBaoAntiAddictionEvent(OAuthLogin.makeAntiAddictionEventData(OAuthLogin.ANTI_ADDICTION_INIT, OAuthLogin.RESPONSE_SYSTEM_ERROR, null));
+			}
+		});
+	}
+
+	// 防沉迷登出
+	public void AndroidThunkJava_HaoYouKuaiBao_ShutdownAntiAddiction() {
+		Log.debug("AndroidThunkJava_HaoYouKuaiBao_ShutdownAntiAddiction");
+				
+		UnionFcmSDK.releaseSDK();
+	};
+	
+	private OAuthData getOAuthData(HykbUser user)
+	{	
+		OAuthData oauthData = new OAuthData();
+		oauthData.UID = user.getUserId();
+		oauthData.Nickname = user.getNick();
+		oauthData.Avator = "";
+		oauthData.Key = user.getToken();
+		oauthData.AccessToken = user.getAccessToken();
+		
+		return oauthData;
+	}
+	
+	private AntiAddictionData getAntiAddictionData(UnionFcmUser user)
+	{
+		AntiAddictionData antiAddictionData = new AntiAddictionData();
+		
+		return antiAddictionData;
+	}
+		</insert>
+	</gameActivityClassAdditions>
+
+	<buildGradleAdditions>
+		<insert>
+			android {
+				defaultConfig {
+					//方法数超过65536时，开启多dex的支持
+					multiDexEnabled true
+				}
+
+				repositories {
+					flatDir {
+						dirs 'src/main/libs/HaoYouKuaiBao/'
+					}
+				}
+			}
+			
+			dependencies {
+				implementation (name:'hykb-common',ext:'aar')
+				implementation (name:'hykb-login',ext:'aar')
+				implementation (name:'hykb-anti',ext:'aar')
+				implementation (name:'hykb-single',ext:'aar')
+			}
+		</insert>
+	</buildGradleAdditions>
+</root>

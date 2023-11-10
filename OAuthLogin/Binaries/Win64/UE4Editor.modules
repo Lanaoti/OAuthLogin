@@ -1,0 +1,11 @@
+{
+	"BuildId": "17155196",
+	"Modules": 
+	{
+		"Facebook": "UE4Editor-Facebook.dll",
+		"Google": "UE4Editor-Google.dll",
+		"HaoYouKuaiBao": "UE4Editor-HaoYouKuaiBao.dll",
+		"OAuthLogin": "UE4Editor-OAuthLogin.dll",
+		"TapTap": "UE4Editor-TapTap.dll"
+	}
+}

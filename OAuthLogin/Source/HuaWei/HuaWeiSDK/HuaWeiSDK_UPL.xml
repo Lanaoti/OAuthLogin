@@ -1,0 +1,535 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<androidManifestUpdates>
+		<addPermission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+		<addPermission android:name="android.permission.ACCESS_WIFI_STATE"/>
+
+		<setElement result="HuaWeiConfig1" value="meta-data" />
+		<addAttribute tag="$HuaWeiConfig1" name="android:name" value="com.huawei.hms.client.appid" />
+		<addAttribute tag="$HuaWeiConfig1" name="android:value" value="appid=107576959" />
+		<addElement tag="application" name="HuaWeiConfig1"/>
+	</androidManifestUpdates>
+
+	<resourceCopies>
+		<copyFile src="$S(PluginDir)/Android/Resources/agconnect-services.json" dst="$S(BuildDir)/agconnect-services.json" force="true"/>
+	</resourceCopies>
+
+	<buildscriptGradleAdditions>
+		<insert>
+			repositories {
+				google()
+				jcenter()
+				// 配置HMS Core SDK的Maven仓地址。
+				maven {url 'https://developer.huawei.com/repo/'}
+			}
+
+			dependencies {
+				// 增加AGC插件配置，请您参见AGC插件依赖关系选择合适的AGC插件版本。
+				classpath 'com.huawei.agconnect:agcp:1.3.1.300'
+			}
+		</insert>
+	</buildscriptGradleAdditions>
+
+	<baseBuildGradleAdditions>
+		<insert>
+			allprojects {
+				repositories {
+					google()
+					jcenter()
+					// 配置HMS Core SDK的Maven仓地址。
+					maven {url 'https://developer.huawei.com/repo/'}
+				}
+			}
+		</insert>
+	</baseBuildGradleAdditions>
+
+	<buildGradleAdditions>
+		<insert>
+			apply plugin: 'com.huawei.agconnect'
+
+			dependencies {
+				implementation 'com.huawei.hms:hwid:6.8.0.300'
+				implementation 'com.huawei.hms:hmscoreinstaller:6.6.0.300'
+				implementation 'com.huawei.hms:game:6.8.0.300'
+			}
+
+			<!--plugins {
+				// 添加如下配置
+				id 'com.huawei.agconnect'
+			}-->
+		</insert>
+		<insert>
+			android {
+				compileOptions {
+					sourceCompatibility JavaVersion.VERSION_1_8
+					targetCompatibility JavaVersion.VERSION_1_8
+				}
+			}
+		</insert>
+	</buildGradleAdditions>
+
+	<proguardAdditions>
+		<insert>
+			-ignorewarnings 
+			-keepattributes *Annotation* 
+			-keepattributes Exceptions 
+			-keepattributes InnerClasses 
+			-keepattributes Signature 
+			-keepattributes SourceFile,LineNumberTable 
+			-keep class com.huawei.hianalytics.**{*;} 
+			-keep class com.huawei.updatesdk.**{*;} 
+			-keep class com.huawei.hms.**{*;} 
+			-keep interface com.huawei.hms.analytics.type.HAEventType{*;}
+			-keep interface com.huawei.hms.analytics.type.HAParamType{*;}
+			-keep class com.huawei.hms.analytics.HiAnalyticsInstance{*;}
+			-keep class com.huawei.hms.analytics.HiAnalytics{*;}
+		</insert>
+	</proguardAdditions>
+
+	<gameActivityImportAdditions>
+		<insert>
+			import com.huawei.hmf.tasks.OnFailureListener;
+			import com.huawei.hmf.tasks.OnSuccessListener;
+			import com.huawei.hmf.tasks.Task;
+			import com.huawei.hms.common.ApiException;
+			import com.huawei.hms.support.account.AccountAuthManager;
+			import com.huawei.hms.support.account.request.AccountAuthParams;
+			import com.huawei.hms.support.account.request.AccountAuthParamsHelper;
+			import com.huawei.hms.support.account.result.AuthAccount;
+			import com.huawei.hms.support.account.service.AccountAuthService;
+			import com.huawei.hms.api.HuaweiMobileServicesUtil;
+			import com.huawei.hms.jos.JosApps;
+			import com.huawei.hms.jos.JosAppsClient;
+			import com.huawei.hms.jos.JosStatusCodes;
+			import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack;
+			import com.huawei.hms.jos.games.PlayersClient;
+			import com.huawei.hms.jos.games.player.Player;
+			import com.huawei.hms.jos.games.player.PlayersClientImpl;
+			import com.huawei.updatesdk.service.otaupdate.UpdateKey;
+			import com.huawei.hms.utils.ResourceLoaderUtil;
+			import com.huawei.hms.jos.AppParams;
+			import com.huawei.hms.jos.games.GamesStatusCodes;
+			import com.huawei.hms.jos.AppUpdateClient;
+			import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo;
+			import com.huawei.hms.support.account.result.AccountAuthResult;
+			import java.io.Serializable;
+			import java.lang.ref.WeakReference;
+		</insert>
+	</gameActivityImportAdditions>
+
+	<gameActivityOnCreateAdditions>
+		<insert>
+			HuaweiMobileServicesUtil.setApplication(getApplication());
+			mAuthParams = new AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME).createParams();
+			mAuthService = AccountAuthManager.getService(this, mAuthParams);
+			updateCallback = new UpdateCallback(this);
+		</insert>
+	</gameActivityOnCreateAdditions>
+	
+	<gameActivityOnResumeAdditions>
+		<insert>
+			showFloatWindow();
+		</insert>
+	</gameActivityOnResumeAdditions>
+	
+	<gameActivityOnPauseAdditions>
+		<insert>
+			hideFloatWindow();
+		</insert>
+	</gameActivityOnPauseAdditions>
+	
+	<gameActivityClassAdditions>
+		<insert>
+			private int huaWeiInitStatus = -1;
+			private UpdateCallback updateCallback;
+			private String avatarUri = "";
+
+			public native void nativeHuaWeiAntiAddictionNotify(String Message);
+			public native void nativeHuaWeiInitResultNotify(String Message);
+
+			public void AndroidThunkJava_HuaWei_Init() {
+				AccountAuthParams params = AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM_GAME;
+				JosAppsClient appsClient = JosApps.getJosAppsClient(this);
+				Task&lt;Void&gt; initTask;
+				ResourceLoaderUtil.setmContext(this);
+				initTask = appsClient.init(
+					new AppParams(params, () -> {
+						// System.exit(0);
+						// The callback will return in two situations:
+						// 1. When a no-adult, real name user logs in to the game during the day, Huawei will pop up a box to remind the player that the game is not allowed. The player clicks "OK" and Huawei will return to the callback
+						// 2. The no-adult, real name user logs in the game at the time allowed by the state. At 9 p.m., Huawei will pop up a box to remind the player that it is time. The player clicks "I know" and Huawei will return to the callback
+						// You can realize the anti addiction function of the game here, such as saving the game, calling the account to exit the interface or directly the game process
+						// 该回调会在如下两种情况下返回:
+						// 1.未成年人实名帐号在白天登录游戏，华为会弹框提示玩家不允许游戏，玩家点击“确定”，华为返回回调
+						// 2.未成年实名帐号在国家允许的时间登录游戏，到晚上9点，华为会弹框提示玩家已到时间，玩家点击“知道了”，华为返回回调
+						// 您可在此处实现游戏防沉迷功能，如保存游戏、调用帐号退出接口或直接游戏进程退出(如System.exit(0))
+																
+						nativeHuaWeiAntiAddictionNotify("");
+						System.exit(0);
+					}));
+							
+					initTask.addOnSuccessListener(aVoid -> {
+					Log.debug("HuaWei init success");
+					// Games released in the Chinese mainland: The update API provided by Huawei must be called upon game launch.
+					// Games released outside the Chinese mainland: It is optional for calling the update API provided by Huawei upon game launch.
+					// 检测应用新版本，中国大陆发布的应用：应用启动时必须使用华为升级接口进行应用升级。
+					// 中国大陆以外发布的应用：不强制要求。
+					huaWeiInitStatus = 0;
+					checkUpdate();
+
+					// Make sure that the interface of showFloatWindow() is successfully called once after the game has been initialized successfully
+					// 游戏初始化成功后务必成功调用过一次浮标显示接口
+					showFloatWindow();
+					// 一定要在init成功后，才可以调用登录接口
+					// signIn();
+
+					String resultMessage = "{\"ErrorCode\":0, \"Data\":\"\"}";
+					nativeHuaWeiInitResultNotify(resultMessage);
+				}).addOnFailureListener(
+						e -> {
+							Log.debug("HuaWei init faild!");
+							if (e instanceof ApiException) {
+								ApiException apiException = (ApiException) e;
+								int statusCode = apiException.getStatusCode();
+
+								huaWeiInitStatus = statusCode;
+								String resultMessage = "{\"ErrorCode\":" + statusCode + ", \"Data\":\"\"}";
+								nativeHuaWeiInitResultNotify(resultMessage);
+
+								if (statusCode == JosStatusCodes.JOS_PRIVACY_PROTOCOL_REJECTED) {
+									// Error code 7401 indicates that the user did not agree to Huawei joint operations privacy agreement
+									// 错误码为7401时表示用户未同意华为联运隐私协议
+									Log.debug("has reject the protocol");
+									// You need to prohibit players from entering the game here.
+									// 此处您需禁止玩家进入游戏
+								} else if (statusCode == GamesStatusCodes.GAME_STATE_NETWORK_ERROR) {
+									// Error code 7002 indicates network error
+									// 错误码7002表示网络异常
+									Log.debug("network error");
+									// 此处您可提示玩家检查网络，请不要重复调用init接口，否则断网情况下可能会造成手机高耗电。
+									// You can ask the player to check the network. Do not invoke the init interface repeatedly. Otherwise, the phone may consume a lot of power if the network is disconnected.
+								} else if (statusCode == 907135003) {
+									// 907135003表示玩家取消HMS Core升级或组件升级
+									// 907135003 indicates that user rejected the installation or upgrade of HMS Core.
+									Log.debug("init statusCode=" + statusCode);
+								} else {
+									// Handle other error codes
+									// 在此处实现其他错误码的处理
+								}
+							}
+						});
+			}
+			
+			/**
+				* Show the game buoy.
+				* *
+				* 显示游戏浮标。
+				*/
+			private void showFloatWindow() {
+				// 请务必在init成功后，调用浮标接口
+				Log.debug("HuaWei showFloatWindow:" + huaWeiInitStatus);
+				if(huaWeiInitStatus == 0)
+				{
+					com.huawei.hms.jos.games.Games.getBuoyClient(this).showFloatWindow();
+				}
+			}
+			
+			private void hideFloatWindow() {
+				Log.debug("HuaWei hideFloatWindow:" + huaWeiInitStatus);
+				if(huaWeiInitStatus == 0)
+				{
+					com.huawei.hms.jos.games.Games.getBuoyClient(this).hideFloatWindow();
+				}
+			}
+			
+			public void checkUpdate() {
+				AppUpdateClient client = JosApps.getAppUpdateClient(this);
+				client.checkAppUpdate(this, updateCallback);
+			}
+			
+			
+			private static class UpdateCallback implements CheckUpdateCallBack {
+				private WeakReference&lt;Context&gt; mContextWeakReference;
+
+				public UpdateCallback(Context context) {
+					mContextWeakReference = new WeakReference&lt;&gt;(context);
+			}
+
+			/**
+			* Get update info from appmarket
+			* *
+			* 从应用市场获取的更新状态信息
+			*
+			* @param intent see detail:
+			*               https://developer.huawei.com/consumer/cn/doc/development/HMS-References/appupdateclient#intent
+			*/
+			@Override
+			public void onUpdateInfo(Intent intent) {
+			if (intent != null) {
+			// 更新状态信息
+			int status = intent.getIntExtra(UpdateKey.STATUS, -99);
+			Log.debug("HuaWei check update status is:" + status);
+			// 返回错误码
+			int rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, -99);
+			// 返回失败信息
+			String rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON);
+			// 强制更新应用时，弹出对话框后用户是否点击“退出应用”按钮
+			// Check whether the user clicks the “exit” button after the dialog box is displayed when the application is forcibly updated.
+			boolean isExit = intent.getBooleanExtra(UpdateKey.MUST_UPDATE, false);
+			Log.debug("rtnCode = " + rtnCode + "rtnMessage = " + rtnMessage);
+
+			Serializable info = intent.getSerializableExtra(UpdateKey.INFO);
+			// 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
+			if (info instanceof ApkUpgradeInfo) {
+			// 如果info属于ApkUpgradeInfo类型，则拉起更新弹框
+			Context context = mContextWeakReference.get();
+			if (context != null) {
+			JosApps.getAppUpdateClient(context).showUpdateDialog(context, (ApkUpgradeInfo) info, false);
+			}
+			Log.debug("check update success and there is a new update");
+			}
+			Log.debug("check update isExit=" + isExit);
+			if (isExit) {
+			// 是强制更新应用，用户在弹出的升级提示框中选择了“退出应用”，处理逻辑由您自行控制，这里只是个例子
+			System.exit(0);
+			}
+			}
+			}
+
+			// ignored
+			// 预留, 无需处理
+			@Override
+			public void onMarketInstallInfo(Intent intent) {
+			}
+
+			// ignored
+			// 预留, 无需处理
+			@Override
+			public void onMarketStoreError(int responseCode) {
+			}
+
+			// ignored
+			// 预留, 无需处理
+			@Override
+			public void onUpdateStoreError(int responseCode) {
+			}
+			}
+
+
+			// 华为帐号登录授权参数
+			// parameter
+			private AccountAuthParams mAuthParams;
+
+			// 华为帐号登录授权服务，提供静默登录接口silentSignIn，获取前台登录视图getSignInIntent，登出signOut等接口
+			// Huawei account service, provides silent signIn API silentSignIn, obtain front-end sign-in view API getSignInIntent, sign out API signOut and other APIs
+			private AccountAuthService mAuthService;
+
+			// 用户自定义signInIntent请求码
+			// User-defined signInIntent request code
+			private static final int SIGN_IN_INTENT = 3000;
+
+			//静默登录回调
+			public native void nativeHuaWeiSilentLoginResultNotify(String Message);
+			//静默登录
+			public void AndroidThunkJava_HuaWei_silentLogin(){
+				Log.debug("HuaWei AndroidThunkJava_HuaWei_silentLogin");
+				if(mAuthService == null || !(huaWeiInitStatus == 0)){
+					Log.debug("HuaWei nativeHuaWeiSilentLoginResultNotify:mAuthService == null || !(huaWeiInitStatus == 0");
+					String resultMessage = "{\"ErrorCode\":101 , \"Data\":\"\"}";
+					nativeHuaWeiSilentLoginResultNotify(resultMessage);
+					return;
+				}
+
+				Task&lt;AuthAccount&gt; task = mAuthService.silentSignIn();
+				task.addOnSuccessListener(new OnSuccessListener&lt;AuthAccount&gt;() {
+					@Override
+					public void onSuccess(AuthAccount authAccount) {
+						// 静默登录成功，处理返回的帐号对象AuthAccount，获取帐号信息并处理
+						// Silent sign in is successful, the returned account object AuthAccount is processed,account information is obtained and processed
+						Log.debug("HuaWei nativeHuaWeiSilentLoginResultNotify successful");
+						Log.debug("Authentication succeeded.");
+						Log.debug("display:" + authAccount.getDisplayName());
+
+						avatarUri = authAccount.getAvatarUri().toString​();
+						Log.debug("avatarUri: " + authAccount.getAvatarUri());
+						Log.debug("avatarStringUri: " + avatarUri);
+						getGamePlayer(true);
+					}
+				});
+				task.addOnFailureListener(new OnFailureListener() {
+					@Override
+					public void onFailure(Exception e) {
+						// 静默登录失败
+						// Silent sign in fails, use the getSignInIntent() method to log in from the foreground
+						Log.debug("HuaWei nativeHuaWeiSilentLoginResultNotify fails");
+						ApiException apiException = (ApiException) e;
+						Log.debug("signIn failed:" + apiException.getStatusCode());
+						Log.debug("start getSignInIntent");
+
+						String resultMessage = "{\"ErrorCode\":" + apiException.getStatusCode() + ", \"Data\":\"\"}";
+						nativeHuaWeiSilentLoginResultNotify(resultMessage);
+					}
+				});
+			}
+
+			//登录回调
+			public native void nativeHuaWeiLoginResultNotify(String Message);
+
+			//先尝试静默登录失败则显式登录
+			public void AndroidThunkJava_HuaWei_Login() {
+				Log.debug("HuaWei AndroidThunkJava_HuaWei_Login");
+			if(mAuthService == null || !(huaWeiInitStatus == 0)){
+				Log.debug("HuaWei AndroidThunkJava_HuaWei_Login: mAuthService == null || !huaWeiInitStatus == 0");
+				String resultMessage = "{\"ErrorCode\":101 , \"Data\":\"\"}";
+				nativeHuaWeiLoginResultNotify(resultMessage);
+				return;
+			}
+
+			Task&lt;AuthAccount&gt; task = mAuthService.silentSignIn();
+				task.addOnSuccessListener(new OnSuccessListener&lt;AuthAccount&gt;() {
+					@Override
+					public void onSuccess(AuthAccount authAccount) {
+						Log.debug("HuaWei AndroidThunkJava_HuaWei_Login Silentsuccessful");
+						// 静默登录成功，处理返回的帐号对象AuthAccount，获取帐号信息并处理
+						// Silent sign in is successful, the returned account object AuthAccount is processed,account information is obtained and processed
+						Log.debug("Authentication succeeded.");
+						Log.debug("display:" + authAccount.getDisplayName());
+						
+						avatarUri = authAccount.getAvatarUri().toString​();
+						Log.debug("avatarUri: " + authAccount.getAvatarUri());
+						Log.debug("avatarStringUri: " + avatarUri);
+						getGamePlayer(false);
+					}
+				});
+				task.addOnFailureListener(new OnFailureListener() {
+					@Override
+					public void onFailure(Exception e) {
+						Log.debug("HuaWei AndroidThunkJava_HuaWei_Login Silentfails");
+						// 静默登录失败，使用getSignInIntent()方法进行前台显式登录
+						// Silent sign in fails, use the getSignInIntent() method to log in from the foreground
+						ApiException apiException = (ApiException) e;
+						Log.debug("signIn failed:" + apiException.getStatusCode());
+						Log.debug("start getSignInIntent");
+
+						// 在此处实现华为帐号显式授权
+						Intent signInIntent = mAuthService.getSignInIntent();
+						startActivityForResult(signInIntent, SIGN_IN_INTENT);
+					}
+				});
+			}
+		
+			/**
+			 * Get the currently logged in player object and get player information from the ‘Player’ object.
+			 * *
+			 * 获取当前登录的玩家对象，从Player对象中获取玩家信息。
+			 */
+			public void getGamePlayer(boolean bSilent) {
+				Log.debug("HuaWei getGamePlayer.");
+				// 调用getPlayersClient方法初始化
+				PlayersClient client = com.huawei.hms.jos.games.Games.getPlayersClient(this);
+				// 执行游戏登录
+				Task&lt;Player&gt; task = client.getGamePlayer();
+				task.addOnSuccessListener(new OnSuccessListener&lt;Player&gt;() {
+					@Override
+					public void onSuccess(Player player) {
+						Log.debug("HuaWei getGamePlayer Success");
+						String accessToken = player.getAccessToken();
+						String displayName = player.getDisplayName();
+						<!--String signTs = player.getSignTs();
+						String playerId = player.getPlayerId();
+						int level = player.getLevel();
+						String playerSign = player.getPlayerSign();
+						String openId = player.getOpenId();
+						String openIdSign = player.getOpenIdSign();-->
+						// 获取玩家信息成功，校验服务器端的玩家信息，校验通过后允许进入游戏
+						String resultMessage = "{\"ErrorCode\":0 , \"Data\":{\"accessToken\":\"" + accessToken + "\", \"displayName\":\"" + displayName + "\", \"avatarUri\":\"" + avatarUri + "\"}}";
+						
+						if(bSilent){
+							Log.debug("HuaWei getGamePlayer Success bSilent:true");
+							nativeHuaWeiSilentLoginResultNotify(resultMessage);
+						}
+						else{
+							Log.debug("HuaWei getGamePlayer Success bSilent:false");
+							nativeHuaWeiLoginResultNotify(resultMessage);
+						}
+					}
+				}).addOnFailureListener(new OnFailureListener() {
+					@Override
+					public void onFailure(Exception e) {
+						Log.debug("HuaWei getGamePlayer fails");
+						if (e instanceof ApiException) {
+							String result = "rtnCode:" + ((ApiException) e).getStatusCode();
+							// 获取玩家信息失败，不允许进入游戏，并根据错误码处理
+							if (7400 == ((ApiException) e).getStatusCode()||7018 == ((ApiException) e).getStatusCode()) {
+								// 7400表示用户未签署联运协议，需要继续调用init接口
+								// 7018表示初始化失败，需要继续调用init接口
+								//AndroidThunkJava_HuaWei_Init();
+							}
+							
+							String resultMessage = "{\"ErrorCode\":" + ((ApiException) e).getStatusCode() + ", \"Data\":\"\"}";
+							if(bSilent){
+								Log.debug("HuaWei getGamePlayer fails bSilent:true");
+								nativeHuaWeiSilentLoginResultNotify(resultMessage);
+							}
+							else{
+								Log.debug("HuaWei getGamePlayer fails bSilent:false");
+								nativeHuaWeiLoginResultNotify(resultMessage);
+							}
+						}
+					}
+				});
+			}
+		
+			/**
+			* Login authorization result response processing method.
+			* *
+			* 登录授权的结果响应处理方法
+			*
+			* @param data Data
+			*/
+			private void handleSignInResult(Intent data) {
+				Log.debug("HuaWei handleSignInResult");
+				String resultMessage = "{\"ErrorCode\":101 , \"Data\":\"\"}";
+
+				if (null == data) {
+					Log.debug("HuaWei signIn intent is null");
+					nativeHuaWeiLoginResultNotify(resultMessage);
+					return;
+				}
+				String jsonSignInResult = data.getStringExtra("HUAWEIID_SIGNIN_RESULT");
+				if (TextUtils.isEmpty(jsonSignInResult)) {
+					Log.debug("HuaWei SignIn result is empty");
+					nativeHuaWeiLoginResultNotify(resultMessage);
+					return;
+				}
+				try {
+					AccountAuthResult signInResult = new AccountAuthResult().fromJson(jsonSignInResult);
+					if (0 == signInResult.getStatus().getStatusCode()) {
+						Log.debug("HuaWei Sign in success.");
+						Log.debug("Sign in result: " + signInResult.toJson());
+
+						avatarUri = signInResult.getAccount().getAvatarUri().toString​();
+						Log.debug("avatarUri " + signInResult.getAccount().getAvatarUri());
+						Log.debug("avatarStringUri " + avatarUri);
+						getGamePlayer(false);
+					} else {
+						Log.debug("HuaWei Sign in failed: " + signInResult.getStatus().getStatusCode());
+						nativeHuaWeiLoginResultNotify(resultMessage);
+					}
+				} catch (JSONException var7) {
+					Log.debug("HuaWei Failed to convert json from signInResult.");
+					nativeHuaWeiLoginResultNotify(resultMessage);
+				}
+			}
+		</insert>
+	</gameActivityClassAdditions>
+
+	<gameActivityOnActivityResultAdditions>
+		<insert>
+			Log.debug("HuaWei gameActivityOnActivityResultAdditions:" + requestCode);
+			if (SIGN_IN_INTENT == requestCode) {
+				handleSignInResult(data);
+			}
+		</insert>
+	</gameActivityOnActivityResultAdditions>
+</root>
