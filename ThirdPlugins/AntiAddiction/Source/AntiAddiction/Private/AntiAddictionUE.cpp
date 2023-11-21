@@ -3,11 +3,10 @@
 #include "TUDebuger.h"
 #include "Model/Vietnam/AAUVietnamConfigModel.h"
 #include "Server/AAUImpl.h"
-#include "UI/AAUHealthTipWidget.h"
 
 #if !UE_BUILD_SHIPPING
 #include "TUSettings.h"
-#include "UI/Vietnam/AAUVietnamRealNameWidget.h"
+#include "Slate/Vietnam/SAAURealNameVietnam.h"
 #endif
 
 AntiAddictionUE::FCallBack AntiAddictionUE::OnCallBack;
@@ -27,7 +26,17 @@ void AntiAddictionUE::Startup(const FString& UserID, bool bIsTapUser) {
 		TUDebuger::ErrorLog("AntiAddiction UserID is Empty");
 		return;
 	}
-	AAUImpl::Get()->Startup(UserID, bIsTapUser);
+	AAUImpl::Get()->StartupWithTapTap(UserID);
+}
+
+void AntiAddictionUE::StartupWithTapTap(const FString& UserID)
+{
+	if (UserID.IsEmpty())
+	{
+		UE_LOG(LogTap, Warning, TEXT("AntiAddiction UserID is Empty"));
+		return;
+	}
+	AAUImpl::Get()->StartupWithTapTap(UserID);
 }
 
 void AntiAddictionUE::Exit() {
@@ -35,7 +44,7 @@ void AntiAddictionUE::Exit() {
 }
 
 EAAUAgeLimit AntiAddictionUE::GetAgeRange() {
-	return AAUImpl::Get()->GetAgeRange();
+	return EAAUAgeLimit::Unknown;
 }
 
 int AntiAddictionUE::GetRemainingTimeInMinutes() {

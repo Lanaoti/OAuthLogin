@@ -42,8 +42,6 @@ public:
 
 	void LoadSplashWithID(int64 SplashID);
 	
-	virtual void RemoveFromParent() override;
-
 protected:
 	virtual void NativeOnInitialized() override;
 

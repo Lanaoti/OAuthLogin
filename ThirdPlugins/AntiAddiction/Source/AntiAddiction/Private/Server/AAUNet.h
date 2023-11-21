@@ -11,6 +11,10 @@
 #include "Model/Vietnam/AAUVietnamConfigModel.h"
 
 
+struct FTUAccessToken;
+struct FTapSmoothError;
+
+DECLARE_DELEGATE_TwoParams(FTapTapSmoothResult, TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTapSmoothError& Error);
 class AAUNet: public TUHttpRequest
 {
 public:
@@ -36,9 +40,11 @@ public:
 		TFunction<void(TSharedPtr<FAAUPlayableModel> ModelPtr, const FTUError& Error)> CallBack, bool IsLogin = false);
 
 	// MARK: - 实名认证部分
-	static void ChinaManualVerify(const FString& UserID, const FString& Name, const FString& CardID,
+	static void ChinaManualVerify(const FString& UserID, const FString& Name, const FString& CardID, bool bFallback,
 		TFunction<void(TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTUError& Error)> CallBack);
 
+	static void QuickVerifyWithTapTapSmooth(const FString& UserId, TSharedRef<FTUAccessToken> TapToken, const FTapTapSmoothResult& CallBack);
+	
 	static void VietnamManualVerify(const FString& UserID, const FString& Year, const FString& Mouth, const FString& Day,
 		TFunction<void(TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTUError& Error)> CallBack);
 

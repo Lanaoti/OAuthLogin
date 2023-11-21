@@ -3,6 +3,9 @@ package com.tds;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.leancloud.json.JSON;
+import cn.leancloud.json.TypeReference;
+
 import com.epicgames.ue4.GameActivity;
 
 import android.content.res.Configuration;
@@ -12,6 +15,13 @@ import android.view.Display;
 import android.view.WindowManager;
 
 public class TapCommonUE {
+    public static String mapToJson(Map jsonMap) {
+        return JSON.toJSONString(jsonMap);
+    }
+
+    public static Map jsonToMap(String jsonStr) {
+        return JSON.parseObject(jsonStr, new TypeReference<HashMap>(){});
+    }
     
     public static boolean isPad() {
         boolean isPad = (GameActivity.Get().getResources().getConfiguration().screenLayout

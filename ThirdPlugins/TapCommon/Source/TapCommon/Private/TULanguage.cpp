@@ -34,6 +34,20 @@ void TULanguage::ParseLanguages() {
 			LanguageMap.Add(Name, ELanguageType::KO);
 		} else if (Name.StartsWith("th")) {
 			LanguageMap.Add(Name, ELanguageType::TH);
+		} else if (Name.StartsWith("de")) {
+			LanguageMap.Add(Name, ELanguageType::DE);
+		} else if (Name.StartsWith("es")) {
+			LanguageMap.Add(Name, ELanguageType::ES);
+		} else if (Name.StartsWith("fr")) {
+			LanguageMap.Add(Name, ELanguageType::FR);
+		} else if (Name.StartsWith("pt")) {
+			LanguageMap.Add(Name, ELanguageType::PT);
+		} else if (Name.StartsWith("ru")) {
+			LanguageMap.Add(Name, ELanguageType::RU);
+		} else if (Name.StartsWith("tr")) {
+			LanguageMap.Add(Name, ELanguageType::TR);
+		} else if (Name.StartsWith("vi")) {
+			LanguageMap.Add(Name, ELanguageType::VI);
 		} 
 	}
 }
@@ -70,6 +84,20 @@ FString TULanguage::GetLanguageString()
 		return TEXT("th_TH");
 	case ELanguageType::ID: 
 		return TEXT("id_ID");
+	case ELanguageType::DE: 
+		return TEXT("de_DE");
+	case ELanguageType::ES: 
+		return TEXT("es_ES");
+	case ELanguageType::FR: 
+    	return TEXT("fr_FR");
+	case ELanguageType::PT: 
+		return TEXT("pt_PT");
+	case ELanguageType::RU: 
+		return TEXT("ru_RU");
+	case ELanguageType::TR: 
+		return TEXT("tr_TR");
+	case ELanguageType::VI: 
+		return TEXT("vi_VN");
 	default:
 		ensure(false);
 		return TEXT("zh_CN");

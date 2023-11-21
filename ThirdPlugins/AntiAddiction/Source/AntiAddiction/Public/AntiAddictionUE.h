@@ -23,7 +23,12 @@ public:
 	static void Init(const FAAUConfig& Config);
 
 	// 启动防沉迷
+	// bIsTapUser参数弃用
+	UE_DEPRECATED(4.0, "Startup is deprecated, please use StartupWithTapTap")
 	static void Startup(const FString& UserID, bool bIsTapUser = false);
+
+	// 启动防沉迷TapTap快速认证
+	static void StartupWithTapTap(const FString& UserID);
 
 	// 防沉迷退出
 	static void Exit();
@@ -35,6 +40,7 @@ public:
 	static void LeaveGame();
 
 	// 获取年龄段；
+	UE_DEPRECATED(4.0, "Get age api deprecated, no longer be provided in the future")
 	static EAAUAgeLimit GetAgeRange();
 
 	/// 获取用户剩余时长（单位：分钟）

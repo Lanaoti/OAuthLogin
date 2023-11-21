@@ -7,13 +7,12 @@ import android.os.Looper;
 import com.tapsdk.antiaddictionui.AntiAddictionUIKit;
 
 public class AntiAddictionUE {
-
-    public static void startup(Activity activity, String userIdentifier, boolean isTapUser) {
+    public static void startupWithTapTap(Activity activity, String userIdentifier) {
         Handler mainHandler = new Handler(Looper.getMainLooper());
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
-                AntiAddictionUIKit.startup(activity, userIdentifier, isTapUser);
+                AntiAddictionUIKit.startupWithTapTap(activity, userIdentifier);
             }
         });
     }

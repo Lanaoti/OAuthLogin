@@ -6,7 +6,7 @@ public:
 	AAUChinaIOSImpl();
 	virtual ~AAUChinaIOSImpl() override;
 	virtual void InitImpl(const FAAUConfig& _Config) override;
-	virtual void Startup(const FString& UserID, bool bIsTapUser) override;
+	virtual void StartupWithTapTap(const FString& UserId) override;
 	virtual void SetTestEnv(bool Enable) override;
 	virtual void Exit() override;
 	virtual void EnterGame() override;

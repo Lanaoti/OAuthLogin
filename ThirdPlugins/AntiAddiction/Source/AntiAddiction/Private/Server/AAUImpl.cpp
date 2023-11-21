@@ -2,13 +2,14 @@
 #include "AAUNet.h"
 #include "AntiAddictionUE.h"
 #include "TUDebuger.h"
-#include "China/AAUChinaImpl.h"
-#include "China/Android/AAUChinaAndroidImpl.h"
 #include "Vietnam/AAUVietnamImpl.h"
-#if PLATFORM_IOS
+#if PLATFORM_ANDROID
+#include "China/Android/AAUChinaAndroidImpl.h"
+#elif  PLATFORM_IOS
 #include "China/iOS/AAUChinaIOSImpl.h"
+#elif PLATFORM_MAC || PLATFORM_WINDOWS
+#include "China/Desktop/AAUChinaImpl.h"
 #endif
-
 
 TSharedPtr<AAUImpl> AAUImpl::Instance = nullptr;
 FAAUConfig AAUImpl::Config;
@@ -85,7 +86,8 @@ void AAUImpl::InitImpl(const FAAUConfig& _Config) {
 	TUDebuger::ErrorLog("Unsupported");
 }
 
-void AAUImpl::Startup(const FString& UserID, bool bIsTapUser) {
+void AAUImpl::StartupWithTapTap(const FString& UserId)
+{
 	TUDebuger::ErrorLog("Unsupported");
 }
 

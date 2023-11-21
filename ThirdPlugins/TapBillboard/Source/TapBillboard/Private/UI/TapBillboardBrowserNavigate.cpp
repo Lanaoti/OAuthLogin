@@ -23,8 +23,11 @@
 
 void UTapBillboardBrowserNavigate::LoadUrl(const FString& Url)
 {
-	BrowserView->LoadURL(Url);
-	State = EBillboardBrowserState::Loading;
+	if (BrowserView)
+	{
+		BrowserView->LoadURL(Url);
+		State = EBillboardBrowserState::Loading;
+	}
 }
 
 void UTapBillboardBrowserNavigate::NativeOnInitialized()
@@ -61,8 +64,8 @@ void UTapBillboardBrowserNavigate::NativeOnInitialized()
 	}
 
 #if PLATFORM_WINDOWS || PLATFORM_MAC
-	SizeBox->SetWidthOverride(1000.f);
-	SizeBox->SetHeightOverride(600.f);
+	SizeBox->SetWidthOverride(1504.f);
+	SizeBox->SetHeightOverride(864.f);
 #else
 	SizeBox->SetWidthOverride(1464.f);
 	SizeBox->SetHeightOverride(1208.f);
@@ -208,8 +211,6 @@ void UTapBillboardBrowserNavigate::OnLoadError()
 
 void UTapBillboardBrowserNavigate::Close()
 {
-	OnBillboardBrowserClosed.ExecuteIfBound();
-
 	SetVisibility(ESlateVisibility::Hidden);//接收小红点 暂时不关闭
 
 	CloseButton->ClosePlatformButton();
@@ -222,6 +223,7 @@ void UTapBillboardBrowserNavigate::Close()
 		Billboard->Rest_SendTraceEvent(ETapBillboardTemplate::Navigate, {{TEXT("action"), TEXT("click")}, {TEXT("type"), TEXT("close")}});
 		Billboard->NavigateBrowser = nullptr;//@TODO
 	}
+	OnBillboardBrowserClosed.ExecuteIfBound();
 }
 
 void UTapBillboardBrowserNavigate::JSNotifyRedDot(const FString& ResultString)

@@ -1,7 +1,7 @@
 #pragma once
 #include "AAUType.h"
 
-class AAUImpl {
+class AAUImpl : public TSharedFromThis<AAUImpl>{
 public:
 	virtual ~AAUImpl() = default;
 	static TSharedPtr<AAUImpl>& Get();
@@ -19,7 +19,7 @@ public:
 
 	virtual void InitImpl(const FAAUConfig& _Config);
 
-	virtual void Startup(const FString& UserID, bool bIsTapUser);
+	virtual void StartupWithTapTap(const FString& UserId);
 
 	virtual void Exit();
 

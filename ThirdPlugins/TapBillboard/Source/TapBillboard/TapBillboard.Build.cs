@@ -1,8 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-using UnrealBuildTool;
 using System.IO;
+using UnrealBuildTool;
+#if UE_5_0_OR_LATER
+using EpicGames.Core;
+#else
 using Tools.DotNETCommon;
+#endif
+
 public class TapBillboard : ModuleRules
 {
 	public TapBillboard(ReadOnlyTargetRules Target) : base(Target)

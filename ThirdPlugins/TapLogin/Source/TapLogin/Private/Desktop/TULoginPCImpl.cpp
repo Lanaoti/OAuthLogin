@@ -1,8 +1,9 @@
 #include "TULoginPCImpl.h"
 
+#include "TapSubsystem.h"
 #include "TULoginLanguage.h"
 #include "Server/TULoginNet.h"
-#include "UI/TAULoginWidget.h"
+#include "Slate/TapLoginWidget.h"
 
 void TULoginPCImpl::Init(FTULoginConfig _Config) {
 	FTUConfig::Get()->ClientID = _Config.ClientID;
@@ -34,7 +35,15 @@ TSharedPtr<FTUAccessToken> TULoginPCImpl::GetAccessToken() {
 }
 
 void TULoginPCImpl::Login(TArray<FString> Permissions, TFunction<void(const TUAuthResult& Result)> CallBack) {
-	UTAULoginWidget::ShowLoginUI(Permissions, CallBack);
+	Permissions.RemoveSingle(TUType::PermissionScope::BasicInfo);
+	Permissions.AddUnique(TUType::PermissionScope::Profile);
+	Permissions.Append(AdditionalPermissions);
+	if (Config.RegionType == ERegionType::Global)
+	{
+		Permissions.Remove(TEXT("compliance"));
+	}
+	UTapSubsystem::AddWidget(SNew(STapLoginWidget, Permissions, Config.RegionType)
+		.OnAuthComplete(FTapAuthComplete::CreateLambda(CallBack)));
 }
 
 void TULoginPCImpl::Logout() {

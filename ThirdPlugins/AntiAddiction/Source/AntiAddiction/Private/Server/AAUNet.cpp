@@ -2,16 +2,15 @@
 
 #include "AAUImpl.h"
 #include "AAURegionConfig.h"
-#include "AntiAddiction.h"
 #include "TUCrypto.h"
 #include "TUDebuger.h"
 #include "TUDeviceInfo.h"
 #include "TUHttpManager.h"
 #include "TUJsonHelper.h"
 #include "TUOpenSSL.h"
-#include "TUType.h"
 #include "Model/AAUUser.h"
-
+#include "TUAccessToken.h"
+#include "Model/China/TapSmoothError.h"
 
 bool AAUNet::RealNameServerIsCrash = false;
 
@@ -65,6 +64,32 @@ void GenerateWrapperResponse(const TSharedPtr<TUHttpResponse>& Response, TShared
 		} else
 		{
 			const auto ErrorPtr = TUJsonHelper::GetUStruct<FTUError>(*DataJsonObject);
+			if (ErrorPtr.IsValid())
+			{
+				Error = *ErrorPtr.Get();
+			}
+		}
+	}
+}
+
+template <typename StructType>
+void GenerateWrapperResponseTapSmooth(const TSharedPtr<TUHttpResponse>& Response, TSharedPtr<StructType>& ModelPtr, FTapSmoothError& Error)
+{
+	if (Response->state == TUHttpResponse::serverError) {
+		return;
+	}
+
+	const auto JsonObject = TUJsonHelper::GetJsonObject(Response->contentString);
+	bool Success = false;
+	const TSharedPtr<FJsonObject>* DataJsonObject = nullptr;
+	if (JsonObject.IsValid() && JsonObject->TryGetBoolField("success", Success) && JsonObject->TryGetObjectField("data", DataJsonObject))
+	{
+		if (Success)
+		{
+			ModelPtr = TUJsonHelper::GetUStruct<StructType>(*DataJsonObject);
+		} else
+		{
+			const auto ErrorPtr = TUJsonHelper::GetUStruct<FTapSmoothError>(*DataJsonObject);
 			if (ErrorPtr.IsValid())
 			{
 				Error = *ErrorPtr.Get();
@@ -232,10 +257,17 @@ void AAUNet::CheckPlayable(const FString& UserID, const FString& Token, TArray<T
 
 
 
-void AAUNet::ChinaManualVerify(const FString& UserID, const FString& Name, const FString& CardID,
+void AAUNet::ChinaManualVerify(const FString& UserID, const FString& Name, const FString& CardID, bool bFallback,
                           TFunction<void(TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTUError& Error)> CallBack) {
 	const TSharedPtr<AAUNet> request = MakeShareable(new AAUNet());
-	request->URL = AAURegionConfig::Get()->RealNameUrl() / "{region}/clients/{clients}/users/{users}/manual" ;
+	if (bFallback)
+	{
+		request->URL = AAURegionConfig::Get()->RealNameUrl() / "{region}/clients/{clients}/users/{users}/fallback";
+	}
+	else
+	{
+		request->URL = AAURegionConfig::Get()->RealNameUrl() / "{region}/clients/{clients}/users/{users}/manual";
+	}
 	AddUriParas(request->URL, UserID, request->PathParameters);
 	request->Type = Post;
 	if (AAUImpl::Config.Region == EAAURegion::China) {
@@ -263,8 +295,34 @@ void AAUNet::ChinaManualVerify(const FString& UserID, const FString& Name, const
 	TUHttpManager::Get().request(request);
 }
 
+void AAUNet::QuickVerifyWithTapTapSmooth(const FString& UserId, TSharedRef<FTUAccessToken> TapToken, const FTapTapSmoothResult& CallBack)
+{
+	const TSharedPtr<AAUNet> request = MakeShareable(new AAUNet());
+	request->URL = AAURegionConfig::Get()->RealNameUrl() / "{region}/clients/{clients}/users/{users}/taptap-smooth" ;
+	AddUriParas(request->URL, UserId, request->PathParameters);
+	request->Type = Post;
+	if (AAUImpl::Config.Region == EAAURegion::China) {
+		request->RepeatCount = 3;
+	}
+
+	FString UserInfoStr = TUJsonHelper::GetJsonString(TSharedPtr<FTUAccessToken>(TapToken));
+	FString Key = TUDebuger::GetReplacedHost(AAURegionConfig::Get()->GetRSAPublicKey());
+
+	auto EncryptData = TUOpenSSL::RSAEncryptPublic(TUCrypto::UTF8Encode(UserInfoStr), Key);
+	request->Parameters->SetStringField("data", TUCrypto::Base64Encode(EncryptData));
+	
+	request->onCompleted.BindLambda([=](TSharedPtr<TUHttpResponse> response) {
+		JudgeServerIsCrash(response);
+		FTapSmoothError Error;
+		TSharedPtr<FAAURealNameResultModel> ModelPtr = nullptr;
+		GenerateWrapperResponseTapSmooth(response, ModelPtr, Error);
+		CallBack.ExecuteIfBound(ModelPtr, Error);
+	});
+	TUHttpManager::Get().request(request);
+}
+
 void AAUNet::VietnamManualVerify(const FString& UserID, const FString& Year, const FString& Mouth, const FString& Day,
-	TFunction<void(TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTUError& Error)> CallBack) {
+                                 TFunction<void(TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTUError& Error)> CallBack) {
 	const TSharedPtr<AAUNet> request = MakeShareable(new AAUNet());
 	request->URL = AAURegionConfig::Get()->RealNameUrl() / "{region}/clients/{clients}/users/{users}/manual" ;
 	AddUriParas(request->URL, UserID, request->PathParameters);

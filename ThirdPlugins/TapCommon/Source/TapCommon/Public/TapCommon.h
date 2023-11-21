@@ -3,10 +3,10 @@
 #pragma once
 
 #include "Modules/ModuleManager.h"
-
-class FSlateStyleSet;
+#include "Slate/SlateGameResources.h"
 
 DECLARE_DELEGATE_OneParam(FAsyncDownloadImage, UTexture2D*);
+DECLARE_DELEGATE_OneParam(FAsyncDownloadBrush, TSharedPtr<FSlateDynamicImageBrush>);
 
 class TAPCOMMON_API FTapCommonModule : public IModuleInterface
 {
@@ -16,7 +16,8 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-
+	TSharedPtr<FSlateStyleSet> Style;
+	
 	static inline FTapCommonModule &Get()
 	{
 		return FModuleManager::LoadModuleChecked<FTapCommonModule>("TapCommon");
@@ -75,6 +76,8 @@ public:
 
 	static void AsyncDownloadImage(const FString& Url, const FAsyncDownloadImage& Callback);
 
+	static void AsyncDownloadImage(const FString& Url, const FAsyncDownloadBrush& Callback);
+	
 	static void TapThrobberShowWait();
  
 	static void TapThrobberShowWaitAndToast(const FString& Toast);

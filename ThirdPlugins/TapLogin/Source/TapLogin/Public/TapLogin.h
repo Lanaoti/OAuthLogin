@@ -2,6 +2,8 @@
 
 #pragma once
 
+class FSlateStyleSet;
+
 class FTapLoginModule : public IModuleInterface
 {
 public:
@@ -9,5 +11,5 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-
+	TSharedPtr<FSlateStyleSet> Style;
 };

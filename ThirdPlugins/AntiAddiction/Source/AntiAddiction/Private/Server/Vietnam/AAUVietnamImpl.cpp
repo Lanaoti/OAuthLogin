@@ -9,8 +9,8 @@
 #include "Server/AAUHelper.h"
 #include "Server/AAUNet.h"
 #include "Server/AAUStorage.h"
+#include "Slate/Vietnam/SAAURealNameVietnam.h"
 #include "UI/AAUMobileTipWidget.h"
-#include "UI/Vietnam/AAUVietnamRealNameWidget.h"
 
 AAUVietnamImpl::AAUVietnamImpl() {
 	Server = MakeShareable(new AAUVietnamServer);
@@ -39,13 +39,13 @@ void AAUVietnamImpl::LeaveGame() {
 	Server->LeaveGame();
 }
 
-void AAUVietnamImpl::Startup(const FString& UserID, bool bIsTapUser) {
-	CurrentUserID = UserID;
+void AAUVietnamImpl::StartupWithTapTap(const FString& UserId) {
+	CurrentUserID = UserId;
 	IsFirstRealNameSuccess = false;
-	TSharedPtr<FAAUUser> LoginUser = TUDataStorage<FAAUStorage>::LoadStruct<FAAUUser>(FAAUStorage::VienamHasLoginedUser + UserID);
+	TSharedPtr<FAAUUser> LoginUser = TUDataStorage<FAAUStorage>::LoadStruct<FAAUUser>(FAAUStorage::VienamHasLoginedUser + UserId);
 
 	FTapCommonModule::TapThrobberShowWait();
-	AAUVietnamRealName::CheckRealNameState(UserID, [=](TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTUError& Error) {
+	AAUVietnamRealName::CheckRealNameState(UserId, [=](TSharedPtr<FAAURealNameResultModel> ModelPtr, const FTUError& Error) {
 		FTapCommonModule::TapThrobberDismiss();
 		if (ModelPtr.IsValid()) {
 			switch (ModelPtr->GetAuthState()) {
@@ -232,6 +232,6 @@ void AAUVietnamImpl::TryAgainLogin(const FString& ErrMsg) {
 	auto Widget = UAAUMobileTipWidget::ShowUI();
 	Widget->SetContent(Msg, "", "Retry");
 	Widget->ComformBlock = [=]() {
-		Startup(CurrentUserID, false);
+		StartupWithTapTap(CurrentUserID);
 	};
 }

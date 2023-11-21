@@ -70,3 +70,8 @@ void TULoginImpl::QueryMutualList(FString Cursor, int Size,
 	// 	CallBack(nullptr, FTUError(FTUError::ERROR_CODE_LOGIN_Platforms_Unsupported, "Unsupported Platforms"));
 	// }
 }
+
+void TULoginImpl::AppendPermission(const FString& Permission)
+{
+	TULoginImpl::Get()->AdditionalPermissions.AddUnique(Permission);
+}

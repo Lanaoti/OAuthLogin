@@ -3,7 +3,7 @@
 #include "TULoginFriendResult.h"
 
 
-class TULoginImpl {
+class TAPLOGIN_API TULoginImpl {
 public:
 	virtual ~TULoginImpl() = default;
 
@@ -27,6 +27,9 @@ public:
 	
 	virtual void QueryMutualList(FString Cursor, int Size, TFunction<void(TSharedPtr<FTULoginFriendResult> ModelPtr, const FTUError& Error)> CallBack);
 
+	virtual void AppendPermission(const FString& Permission);
+protected:
+	TArray<FString> AdditionalPermissions;
 private:
 	static TSharedPtr<TULoginImpl> Instance;
 };

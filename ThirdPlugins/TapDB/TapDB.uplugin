@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 32200001,
-	"VersionName": "3.22.0",
+	"Version": 32500001,
+	"VersionName": "3.25.0",
 	"FriendlyName": "TapDB",
 	"Description": "TapTap TapDB",
 	"Category": "TapTap",
@@ -10,10 +10,10 @@
 	"DocsURL": "",
 	"MarketplaceURL": "",
 	"SupportURL": "",
+	"EnabledByDefault": false,
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
-	"EnabledByDefault": false,
 	"Installed": false,
 	"Modules": [
 		{

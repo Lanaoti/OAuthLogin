@@ -46,10 +46,11 @@ void AAUChinaIOSImpl::InitImpl(const FAAUConfig& _Config) {
 	});
 }
 
-void AAUChinaIOSImpl::Startup(const FString& UserID, bool bIsTapUser) {
-	NSString *userID = IOSHelper::Convert(UserID);
+void AAUChinaIOSImpl::StartupWithTapTap(const FString& UserId)
+{
+	NSString *userID = IOSHelper::Convert(UserId);
 	dispatch_async(dispatch_get_main_queue(), ^{
-		[AntiAddiction startupWithUserID:userID isTapUser:bIsTapUser];
+		[AntiAddiction startupWithTapTap:userID];
 	});
 }
 
@@ -79,7 +80,7 @@ void AAUChinaIOSImpl::LeaveGame() {
 }
 
 EAAUAgeLimit AAUChinaIOSImpl::GetAgeRange() {
-	return AAUHelper::MakeAgeLimit([AntiAddiction getAgeRange]);
+	return EAAUAgeLimit::Unknown;
 }
 
 int AAUChinaIOSImpl::GetRemainingTime() {

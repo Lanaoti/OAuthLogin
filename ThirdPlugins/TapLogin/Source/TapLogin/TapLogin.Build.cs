@@ -1,8 +1,12 @@
 // Some copyright should be here...
 
-using UnrealBuildTool;
 using System.IO;
+using UnrealBuildTool;
+#if UE_5_0_OR_LATER
+using EpicGames.Core;
+#else
 using Tools.DotNETCommon;
+#endif
 
 public class TapLogin : ModuleRules
 {
@@ -72,7 +76,8 @@ public class TapLogin : ModuleRules
             PublicAdditionalFrameworks.Add(
                 new Framework(
                     "TapLoginSDK",
-                    "../ThirdParty/iOS/Frameworks/TapLoginSDK.zip"
+                    "../ThirdParty/iOS/Frameworks/TapLoginSDK.zip",
+                    "TapLoginResource.bundle"
                 )
             );
         }

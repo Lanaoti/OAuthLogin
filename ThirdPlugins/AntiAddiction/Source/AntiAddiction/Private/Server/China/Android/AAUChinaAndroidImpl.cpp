@@ -22,13 +22,13 @@ AAUChinaAndroidImpl::AAUChinaAndroidImpl() {
 	TUMobileBridge::Register(TEXT(TAP_ANTI_CLZ),TEXT(TAP_ANTI_IMPL));
 }
 
-
-void AAUChinaAndroidImpl::Startup(const FString& UserID, bool bIsTapUser) {
+void AAUChinaAndroidImpl::StartupWithTapTap(const FString& UserId)
+{
 	TapJNI::JNI JNI;
 	auto ClassObject = JNI.FindClass(JavaAntiAddictionUE);
-	JNI.CallStaticVoidMethod(ClassObject, "startup",
-							 "(Landroid/app/Activity;Ljava/lang/String;Z)V", *JNI.GetActivity(),
-							 *JNI.ToJavaString(UserID), bIsTapUser);
+	JNI.CallStaticVoidMethod(ClassObject, "startupWithTapTap",
+							 "(Landroid/app/Activity;Ljava/lang/String;)V", *JNI.GetActivity(),
+							 *JNI.ToJavaString(UserId));
 }
 
 void AAUChinaAndroidImpl::SetTestEnv(bool Enable) {

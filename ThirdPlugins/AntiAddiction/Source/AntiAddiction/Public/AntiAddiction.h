@@ -3,12 +3,13 @@
 #pragma once
 
 #include "Modules/ModuleManager.h"
+#include "Slate/SlateGameResources.h"
 
 class FAntiAddictionModule : public IModuleInterface
 {
 public:
-
-	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+	
+	TSharedPtr<FSlateStyleSet> Style;
 };

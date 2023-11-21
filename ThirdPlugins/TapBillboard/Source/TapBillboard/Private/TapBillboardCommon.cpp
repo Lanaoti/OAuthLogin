@@ -280,8 +280,12 @@ void FTapBillboardCommon::CloseSplashPanel()
 {
 	if (IsValid(SplashBrowser))
 	{
+		Rest_SendTraceEvent(ETapBillboardTemplate::Splash, {{TEXT("action"), TEXT("click")}, {TEXT("type"), TEXT("close")}});
+		
+		FSimpleDelegate Temp = SplashBrowser->OnBillboardBrowserClosed;
 		SplashBrowser->RemoveFromParent();
 		SplashBrowser = nullptr;
+		Temp.ExecuteIfBound();
 	}
 }
 

@@ -62,15 +62,6 @@ void UTapBillboardBrowserSplash::LoadSplashWithID(int64 SplashID)
 	}
 }
 
-void UTapBillboardBrowserSplash::RemoveFromParent()
-{
-	if (FTapBillboardPtr Billboard = FTapBillboardModule::GetTapBillboardInterface())
-	{
-		Billboard->Rest_SendTraceEvent(ETapBillboardTemplate::Splash, {{TEXT("action"), TEXT("click")}, {TEXT("type"), TEXT("close")}});
-	}
-	Super::RemoveFromParent();
-}
-
 void UTapBillboardBrowserSplash::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -96,8 +87,8 @@ void UTapBillboardBrowserSplash::NativeOnInitialized()
 	}
 
 #if PLATFORM_WINDOWS || PLATFORM_MAC
-	SizeBox->SetWidthOverride(1000.f);
-	SizeBox->SetHeightOverride(600.f);
+	SizeBox->SetWidthOverride(1504.f);
+	SizeBox->SetHeightOverride(864.f);
 #else
 	SizeBox->SetWidthOverride(1464.f);
 	SizeBox->SetHeightOverride(1208.f);
