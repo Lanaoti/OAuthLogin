@@ -5,9 +5,16 @@
 #include "JsonUtilities.h"
 
 
-void UOAuthLoginBlueprintLibrary::Init()
+void UOAuthLoginBlueprintLibrary::Init(FOAuthInitDelegate Delegate)
 {
 	FOAuthLoginModule& OAuthLoginModule = FOAuthLoginModule::Get();
+	OAuthLoginModule.OnInitEvent = FOnInitEvent::CreateLambda([Delegate](FName ChannelName, EOAuthResponse Code, bool bWasCompleted)
+	{
+		AsyncTask(ENamedThreads::GameThread, [Delegate, ChannelName, Code, bWasCompleted]()
+		{
+			Delegate.ExecuteIfBound(ChannelName, Code, bWasCompleted);
+		});
+	});
 	OAuthLoginModule.Init();
 }
 
@@ -19,6 +26,8 @@ bool UOAuthLoginBlueprintLibrary::IsEnabled(FName ChannelName)
 
 void UOAuthLoginBlueprintLibrary::Login(FName ChannelName, FOAuthLoginDelegate Delegate)
 {
+	UE_LOG(LogOAuthLogin, Log, TEXT("Starting Login with %s"), *ChannelName.ToString());
+
 	FOAuthLoginModule& OAuthLoginModule = FOAuthLoginModule::Get();
 	FOAuthLoginPtr OAuthLogin = OAuthLoginModule.GetOAuthLogin(ChannelName);
 	if (OAuthLogin.IsValid())
@@ -30,7 +39,7 @@ void UOAuthLoginBlueprintLibrary::Login(FName ChannelName, FOAuthLoginDelegate D
 				FOAuthLoginData OAuthLoginData;
 				FJsonObjectConverter::JsonObjectStringToUStruct<FOAuthLoginData>(Data, &OAuthLoginData);
 
-				Delegate.ExecuteIfBound(OAuthLoginData.Code, OAuthLoginData.OAuthData);
+				Delegate.ExecuteIfBound(OAuthLoginData.Code, OAuthLoginData.Data);
 			});
 		});
 
@@ -38,12 +47,16 @@ void UOAuthLoginBlueprintLibrary::Login(FName ChannelName, FOAuthLoginDelegate D
 	}
 	else
 	{
-		Delegate.ExecuteIfBound(EOAuthLoginResponse::NotSupported, FOAuthData());
+		UE_LOG(LogOAuthLogin, Warning, TEXT("Login to %s channel not supported"), *ChannelName.ToString());
+
+		Delegate.ExecuteIfBound(EOAuthResponse::NotSupported, FOAuthData());
 	}
 }
 
 void UOAuthLoginBlueprintLibrary::Logout(FName ChannelName, FOAuthLogoutDelegate Delegate)
 {
+	UE_LOG(LogOAuthLogin, Log, TEXT("Starting Logout with %s"), *ChannelName.ToString());
+
 	FOAuthLoginModule& OAuthLoginModule = FOAuthLoginModule::Get();
 	FOAuthLoginPtr OAuthLogin = OAuthLoginModule.GetOAuthLogin(ChannelName);
 	if (OAuthLogin.IsValid())
@@ -60,10 +73,18 @@ void UOAuthLoginBlueprintLibrary::Logout(FName ChannelName, FOAuthLogoutDelegate
 
 		OAuthLogin->Logout();
 	}
+	else
+	{
+		UE_LOG(LogOAuthLogin, Warning, TEXT("OAuthLogin to %s channel not supported"), *ChannelName.ToString());
+
+		Delegate.ExecuteIfBound(EOAuthResponse::NotSupported);
+	}
 }
 
 void UOAuthLoginBlueprintLibrary::StartupAntiAddiction(FName ChannelName, FAntiAddictionEventDelegate Delegate)
 {
+	UE_LOG(LogOAuthLogin, Log, TEXT("Starting StartupAntiAddiction with %s"), *ChannelName.ToString());
+
 	FOAuthLoginModule& OAuthLoginModule = FOAuthLoginModule::Get();
 	FOAuthLoginPtr OAuthLogin = OAuthLoginModule.GetOAuthLogin(ChannelName);
 	if (OAuthLogin.IsValid())
@@ -75,7 +96,7 @@ void UOAuthLoginBlueprintLibrary::StartupAntiAddiction(FName ChannelName, FAntiA
 				FAntiAddictionEventData AntiAddictionEventData;
 				FJsonObjectConverter::JsonObjectStringToUStruct<FAntiAddictionEventData>(Data, &AntiAddictionEventData);
 
-				Delegate.ExecuteIfBound(AntiAddictionEventData.Event, AntiAddictionEventData.Code, AntiAddictionEventData.AntiAddictionData);
+				Delegate.ExecuteIfBound(AntiAddictionEventData.Event, AntiAddictionEventData.Code, AntiAddictionEventData.Data);
 			});
 		});
 
@@ -83,16 +104,24 @@ void UOAuthLoginBlueprintLibrary::StartupAntiAddiction(FName ChannelName, FAntiA
 	}
 	else
 	{
-		Delegate.ExecuteIfBound(EAntiAddictionEvent::Init, EOAuthLoginResponse::SystemError, FAntiAddictionData());
+		UE_LOG(LogOAuthLogin, Warning, TEXT("StartupAntiAddiction to %s channel not supported"), *ChannelName.ToString());
+
+		Delegate.ExecuteIfBound(EAntiAddictionEvent::Startup, EOAuthResponse::SystemError, FAntiAddictionData());
 	}
 }
 
 void UOAuthLoginBlueprintLibrary::ShutdownAntiAddiction(FName ChannelName)
 {
+	UE_LOG(LogOAuthLogin, Log, TEXT("Starting ShutdownAntiAddiction with %s"), *ChannelName.ToString());
+
 	FOAuthLoginModule& OAuthLoginModule = FOAuthLoginModule::Get();
 	FOAuthLoginPtr OAuthLogin = OAuthLoginModule.GetOAuthLogin(ChannelName);
 	if (OAuthLogin.IsValid())
 	{
 		OAuthLogin->ShutdownAntiAddiction();
+	}
+	else
+	{
+		UE_LOG(LogOAuthLogin, Warning, TEXT("ShutdownAntiAddiction to %s channel not supported"), *ChannelName.ToString());
 	}
 }

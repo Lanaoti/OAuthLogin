@@ -1,44 +1,34 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "HuaWeiModule.h"
-#include "HuaWeiManager.h"
+#include "OAuthLoginModule.h"
 #if PLATFORM_ANDROID
 #include "Android/AndroidHuaWei.h"
 #elif PLATFORM_IOS
+#include "IOS/IOSHuaWei.h"
 #endif
 
+/** Logging definitions */
+DEFINE_LOG_CATEGORY(LogHuaWei);
 
 #define LOCTEXT_NAMESPACE "FHuaWeiModule"
 
 void FHuaWeiModule::StartupModule()
 {
-	UE_LOG(LogTemp, Log, TEXT("FHuaWeiModule::StartupModule"));
+	UE_LOG(LogHuaWei, Log, TEXT("FHuaWeiModule::StartupModule"));
 
 #if PLATFORM_ANDROID
-	HuaWei = MakeShared<FAndroidHuaWei>();
+	FOAuthLoginModule::Get().Register(HUAWEI_CHANNEL_NAME, MakeShared<FAndroidHuaWei>());
 #elif PLATFORM_IOS
-
+	FOAuthLoginModule::Get().Register(HUAWEI_CHANNEL_NAME, MakeShared<FIOSHuaWei>());
 #endif
-
-	if (HuaWei.IsValid())
-	{
-		HuaWei->OnStartup();
-	}
-
-	UHuaWeiManager::Get()->Init();
 }
 
 void FHuaWeiModule::ShutdownModule()
 {
-	if (HuaWei.IsValid())
-	{
-		HuaWei->OnShutdown();
-	}
-	UHuaWeiManager::Get()->Shutdown();
-}
-FHuaWeiPtr FHuaWeiModule::GetHuaWei()
-{
-	return HuaWei;
+	UE_LOG(LogHuaWei, Log, TEXT("FHuaWeiModule::ShutdownModule"));
+
+	FOAuthLoginModule::Get().Unregister(HUAWEI_CHANNEL_NAME);
 }
 
 #undef LOCTEXT_NAMESPACE

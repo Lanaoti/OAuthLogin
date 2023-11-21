@@ -2,6 +2,28 @@
 
 using UnrealBuildTool;
 using System.IO;
+using System.Collections.Generic;
+#if UE_5_0_OR_LATER
+using EpicGames.Core;
+#else
+using Tools.DotNETCommon;
+#endif
+
+struct OAuthChannel
+{
+    public OAuthChannel(string ModuleName, string MacroName, bool bEnable)
+    {
+        this.ModuleName = ModuleName;
+        this.MacroName = MacroName;
+
+        this.bEnable = bEnable;
+    }
+
+    public string ModuleName;
+    public string MacroName;
+
+    public bool bEnable;
+}
 
 public class OAuthLogin : ModuleRules
 {
@@ -32,6 +54,8 @@ public class OAuthLogin : ModuleRules
     public OAuthLogin(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        
+        ConfigCache.ReadSettings(DirectoryReference.FromFile(Target.ProjectFile), Target.Platform, this);
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -56,49 +80,33 @@ public class OAuthLogin : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-                "JSON",
+                "Json",
                 "JsonUtilities"
             });
 
-        if (bEnableHuaWei)
-        {
-            DynamicallyLoadedModuleNames.Add("HuaWei");
-        }
+        System.Console.WriteLine("-------------------- OAuthLogin Config ---------------------");
 
-        if (bEnableWeChat)
-        {
-            DynamicallyLoadedModuleNames.Add("WeChat");
-        }
+        List<OAuthChannel> OAuthChannels = new List<OAuthChannel>();
+        OAuthChannels.Add(new OAuthChannel("HuaWei",        "ENABLE_HUAWEI",        bEnableHuaWei));
+        OAuthChannels.Add(new OAuthChannel("WeChat",        "ENABLE_WECHAT",        bEnableWeChat));
+        OAuthChannels.Add(new OAuthChannel("QQ",            "ENABLE_QQ",            bEnableQQ));
+        OAuthChannels.Add(new OAuthChannel("TapTap",        "ENABLE_TAPTAP",        bEnableTapTap));
+        OAuthChannels.Add(new OAuthChannel("HaoYouKuaiBao", "ENABLE_HAOYOUKUAIBAO", bEnableHaoYouKuaiBao));
+        OAuthChannels.Add(new OAuthChannel("Google",        "ENABLE_GOOGLE",        bEnableGoogle));
+        OAuthChannels.Add(new OAuthChannel("Facebook",      "ENABLE_FACEBOOK",      bEnableFacebook));
+        OAuthChannels.Add(new OAuthChannel("Steam",         "ENABLE_STEAM",         bEnableSteam));
 
-        if (bEnableQQ)
+        foreach (OAuthChannel Channel in OAuthChannels)
         {
-            DynamicallyLoadedModuleNames.Add("QQ");
-        }
+            if (Channel.bEnable)
+            {
+                DynamicallyLoadedModuleNames.Add(Channel.ModuleName);
+            }
+            PublicDefinitions.Add(string.Format("{0} = {1}", Channel.MacroName, (Channel.bEnable ? "1" : "0")));
 
-        if (bEnableTapTap)
-        {
-            DynamicallyLoadedModuleNames.Add("TapTap");
+            System.Console.WriteLine(string.Format("{0} enable is {1}", Channel.ModuleName, Channel.bEnable));
         }
-
-        if (bEnableHaoYouKuaiBao)
-        {
-            DynamicallyLoadedModuleNames.Add("HaoYouKuaiBao");
-        }
-
-        if (bEnableGoogle)
-        {
-            DynamicallyLoadedModuleNames.Add("Google");
-        }
-
-        if (bEnableFacebook)
-        {
-            DynamicallyLoadedModuleNames.Add("Facebook");
-        }
-
-        if (bEnableSteam)
-        {
-            DynamicallyLoadedModuleNames.Add("Steam");
-        }
+        System.Console.WriteLine("---------------------------------------------------------------");
 
         if (Target.Platform == UnrealTargetPlatform.Android)
         {

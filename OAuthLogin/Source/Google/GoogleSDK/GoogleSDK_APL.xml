@@ -40,26 +40,46 @@
 		</insert>
 	</proguardAdditions>
 
+	<buildGradleAdditions>
+		<insert>
+			android {
+				defaultConfig {
+				
+				}
+			}
+
+			repositories {
+				google()
+
+				// If you're using a version of Gradle lower than 4.1, you must instead use:
+				// maven {
+				//     url 'https://maven.google.com'
+				// }
+			}
+			
+			dependencies {
+				implementation 'com.google.android.gms:play-services-auth:20.7.0'
+			}
+		</insert>
+	</buildGradleAdditions>
+
 	<gameActivityImportAdditions>
 		<insert>
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 		</insert>
 	</gameActivityImportAdditions>
 	
 	<gameActivityClassAdditions>
 		<insert>		
 	/** Unique request id when using sign in activity */
-	private static final int REQUEST_SIGN_IN = 9001;
+	private static final int GOOGLE_REQUEST_SIGN_IN = 9001;
 			
 	/** Google API client needed for actual sign in */
 	private GoogleSignInClient mGoogleSignInClient;
@@ -120,7 +140,7 @@ import com.google.android.gms.tasks.Task;
 		if (signInIntent != null)
 		{
 			Log.debug("login start activity:");
-			this.startActivityForResult(signInIntent, REQUEST_SIGN_IN);
+			this.startActivityForResult(signInIntent, GOOGLE_REQUEST_SIGN_IN);
 		} 
 		else 
 		{
@@ -136,10 +156,10 @@ import com.google.android.gms.tasks.Task;
 		Log.debug("AndroidThunkJava_Google_Logout");
 
 		mGoogleSignInClient.signOut()
-			.addOnCompleteListener(this, new OnCompleteListener&lt;Void&gt;()
+			.addOnCompleteListener(this, new com.google.android.gms.tasks.OnCompleteListener&lt;Void&gt;()
 			{
 				@Override
-				public void onComplete(@NonNull Task&lt;Void&gt; task) 
+				public void onComplete(@NonNull com.google.android.gms.tasks.Task&lt;Void&gt; task) 
 				{
 					boolean bWasSuccessful = task.isSuccessful();
 					Log.debug("onSignOut Complete success:" + bWasSuccessful);
@@ -154,7 +174,7 @@ import com.google.android.gms.tasks.Task;
 		OAuthData oauthData = new OAuthData();
 		oauthData.UID = acct.getId();
 		oauthData.Nickname = acct.getDisplayName();
-		oauthData.Avator = acct.getPhotoUrl().toString();
+		oauthData.Avatar = acct.getPhotoUrl().toString();
 		oauthData.Key = acct.getServerAuthCode();
 		oauthData.AccessToken = acct.getIdToken();
 		
@@ -201,9 +221,9 @@ import com.google.android.gms.tasks.Task;
 	<gameActivityOnActivityResultAdditions>
 		<insert>
 		// Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-		if (requestCode == REQUEST_SIGN_IN) 
+		if (requestCode == GOOGLE_REQUEST_SIGN_IN)
 		{
-			Log.debug("onActivityResult REQUEST_SIGN_IN");
+			Log.debug("onActivityResult GOOGLE_REQUEST_SIGN_IN");
 			Log.debug("data: " + ((data != null) ? data.toString() : "null"));
 
 			if (resultCode == Activity.RESULT_OK)
@@ -211,11 +231,11 @@ import com.google.android.gms.tasks.Task;
 				Log.debug("signing in");
 			}
 
-			Task&lt;GoogleSignInAccount&gt; completedTask = GoogleSignIn.getSignedInAccountFromIntent(data);
+			com.google.android.gms.tasks.Task&lt;GoogleSignInAccount&gt; completedTask = GoogleSignIn.getSignedInAccountFromIntent(data);
 			try
 			{
 				// Try to access the account result
-				GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+				GoogleSignInAccount account = completedTask.getResult(com.google.android.gms.common.api.ApiException.class);
 					
 				// Signed in successfully
 				Log.debug("Sign in success");
@@ -223,9 +243,9 @@ import com.google.android.gms.tasks.Task;
 
 				nativeGoogleLoginComplete(OAuthLogin.makeOAuthLoginData(OAuthLogin.RESPONSE_SUCCESS, getOAuthData(account)));
 			}
-			catch (ApiException e)
+			catch (com.google.android.gms.common.api.ApiException e)
 			{
-				// The ApiException status code indicates the detailed failure reason.
+				// The com.google.android.gms.common.api.ApiException status code indicates the detailed failure reason.
 				// Please refer to the GoogleSignInStatusCodes class reference for more information.
 				Log.debug("Sign in failure:" + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()));
 				if (e.getStatusCode() == GoogleSignInStatusCodes.DEVELOPER_ERROR)
@@ -243,27 +263,4 @@ import com.google.android.gms.tasks.Task;
 		
 		</insert>
 	</gameActivityOnActivityResultAdditions>
-
-	<buildGradleAdditions>
-		<insert>
-			android {
-				defaultConfig {
-				
-				}
-			}
-
-			repositories {
-				google()
-
-				// If you're using a version of Gradle lower than 4.1, you must instead use:
-				// maven {
-				//     url 'https://maven.google.com'
-				// }
-			}
-			
-			dependencies {
-				implementation 'com.google.android.gms:play-services-auth:20.7.0'
-			}
-		</insert>
-	</buildGradleAdditions>
 </root>

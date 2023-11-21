@@ -1,110 +1,84 @@
-// Copyright 2022 CQUnreal. All Rights Reserved.
-
 #include "AndroidHuaWei.h"
-#include "Android/AndroidJavaEnv.h"
+#include "OAuthLoginModule.h"
 #include "HuaWeiModule.h"
+#include "Android/AndroidJavaEnv.h"
 
 jmethodID FAndroidHuaWei::HuaWeiInit;
 jmethodID FAndroidHuaWei::HuaWeiLogin;
-jmethodID FAndroidHuaWei::HuaWeiSilentLogin;
+jmethodID FAndroidHuaWei::HuaWeiLogout;
+jmethodID FAndroidHuaWei::HuaWeiStartupAntiAddiction;
+jmethodID FAndroidHuaWei::HuaWeiShutdownAntiAddiction;
 
-//登录回调
-JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiLoginResultNotify(JNIEnv* jenv, jobject thiz, jstring msg)
+// HuaWei初始化回调
+JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiInitComplete(JNIEnv* jenv, jobject thiz, jstring msg)
 {
-	FString ReturnString = TEXT("");
+	FString Data = TEXT("");
 	if (jenv != nullptr)
 	{
-		ReturnString = FJavaHelper::FStringFromParam(jenv, msg);
+		Data = FJavaHelper::FStringFromParam(jenv, msg);
 	}
 
-	FHuaWeiModule& HuaWeiModule = FHuaWeiModule::Get();
-	if (!HuaWeiModule.IsAvailable())
+	UE_LOG(LogHuaWei, Log, TEXT("nativeHuaWeiInitComplete: %s"), *Data);
+
+	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(HUAWEI_CHANNEL_NAME);
+	if (LoginChannel.IsValid())
 	{
-		return;
+		LoginChannel->OnInitCompleted.ExecuteIfBound(Data);
 	}
-
-	FHuaWeiPtr HuaWei = HuaWeiModule.GetHuaWei();
-	if (!HuaWei.IsValid())
-	{
-		return;
-	}
-
-	HuaWei->HuaWeiLoginCompleted.Broadcast(ReturnString);
 }
 
-//静默登录回调
-JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiSilentLoginResultNotify(JNIEnv* jenv, jobject thiz, jstring msg)
+// HuaWei登录回调
+JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiLoginComplete(JNIEnv* jenv, jobject thiz, jstring msg)
 {
-	FString ReturnString = TEXT("");
+	FString Data = TEXT("");
 	if (jenv != nullptr)
 	{
-		ReturnString = FJavaHelper::FStringFromParam(jenv, msg);
+		Data = FJavaHelper::FStringFromParam(jenv, msg);
 	}
 
-	FHuaWeiModule& HuaWeiModule = FHuaWeiModule::Get();
-	if (!HuaWeiModule.IsAvailable())
+	UE_LOG(LogHuaWei, Log, TEXT("nativeHuaWeiLoginComplete: %s"), *Data);
+
+	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(HUAWEI_CHANNEL_NAME);
+	if (LoginChannel.IsValid())
 	{
-		return;
+		LoginChannel->OnLoginCompleted.ExecuteIfBound(Data);
 	}
-
-	FHuaWeiPtr HuaWei = HuaWeiModule.GetHuaWei();
-	if (!HuaWei.IsValid())
-	{
-		return;
-	}
-
-	HuaWei->HuaWeiSilentLoginCompleted.Broadcast(ReturnString);
 }
 
-
-
-//防沉迷回调玩家当前无法进行游戏
-JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiAntiAddictionNotify(JNIEnv* jenv, jobject thiz, jstring msg)
+// HuaWei注销登录回调
+JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiLogoutComplete(JNIEnv* jenv, jobject thiz, jstring jdata)
 {
-	FString ReturnString = TEXT("");
+	FString Data = TEXT("");
 	if (jenv != nullptr)
 	{
-		ReturnString = FJavaHelper::FStringFromParam(jenv, msg);
+		Data = FJavaHelper::FStringFromParam(jenv, jdata);
 	}
 
-	FHuaWeiModule& HuaWeiModule = FHuaWeiModule::Get();
-	if (!HuaWeiModule.IsAvailable())
+	UE_LOG(LogHuaWei, Log, TEXT("nativeHuaWeiLogoutComplete: %s"), *Data);
+
+	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(HUAWEI_CHANNEL_NAME);
+	if (LoginChannel.IsValid())
 	{
-		return;
+		LoginChannel->OnLogoutCompleted.ExecuteIfBound(Data);
 	}
-
-	FHuaWeiPtr HuaWei = HuaWeiModule.GetHuaWei();
-	if (!HuaWei.IsValid())
-	{
-		return;
-	}
-
-	HuaWei->HuaWeiAntiAddictionCompleted.Broadcast(ReturnString);
 }
 
-
-//华为初始化回调
-JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiInitResultNotify(JNIEnv* jenv, jobject thiz, jstring msg)
+// HuaWei防沉迷回调
+JNI_METHOD void Java_com_epicgames_ue4_GameActivity_nativeHuaWeiAntiAddictionEvent(JNIEnv* jenv, jobject thiz, jstring msg)
 {
-	FString ReturnString = TEXT("");
+	FString Data = TEXT("");
 	if (jenv != nullptr)
 	{
-		ReturnString = FJavaHelper::FStringFromParam(jenv, msg);
+		Data = FJavaHelper::FStringFromParam(jenv, msg);
 	}
 
-	FHuaWeiModule& HuaWeiModule = FHuaWeiModule::Get();
-	if (!HuaWeiModule.IsAvailable())
+	UE_LOG(LogHuaWei, Log, TEXT("nativeHuaWeiAntiAddictionEvent: %s"), *Data);
+
+	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(HUAWEI_CHANNEL_NAME);
+	if (LoginChannel.IsValid())
 	{
-		return;
+		LoginChannel->OnAntiAddictionEvent.ExecuteIfBound(Data);
 	}
-
-	FHuaWeiPtr HuaWei = HuaWeiModule.GetHuaWei();
-	if (!HuaWei.IsValid())
-	{
-		return;
-	}
-
-	HuaWei->HuaWeiInitCompleted.Broadcast(ReturnString);
 }
 
 FAndroidHuaWei::FAndroidHuaWei()
@@ -113,21 +87,13 @@ FAndroidHuaWei::FAndroidHuaWei()
 	{
 		HuaWeiInit = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_HuaWei_Init", "()V", false);
 		HuaWeiLogin = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_HuaWei_Login", "()V", false);
-		HuaWeiSilentLogin = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_HuaWei_silentLogin", "()V", false);
+		HuaWeiLogout = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_HuaWei_Logout", "()V", false);
+		HuaWeiStartupAntiAddiction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_HuaWei_StartupAntiAddiction", "()V", false);
+		HuaWeiShutdownAntiAddiction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_HuaWei_ShutdownAntiAddiction", "()V", false);
 	}
 }
 
 FAndroidHuaWei::~FAndroidHuaWei()
-{
-
-}
-
-void FAndroidHuaWei::OnStartup()
-{
-
-}
-
-void FAndroidHuaWei::OnShutdown()
 {
 
 }
@@ -148,10 +114,26 @@ void FAndroidHuaWei::Login()
 	}
 }
 
-void FAndroidHuaWei::SilentLogin()
+void FAndroidHuaWei::Logout()
 {
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
-		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, HuaWeiSilentLogin);
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, HuaWeiLogout);
+	}
+}
+
+void FAndroidHuaWei::StartupAntiAddiction()
+{
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, HuaWeiStartupAntiAddiction);
+	}
+}
+
+void FAndroidHuaWei::ShutdownAntiAddiction()
+{
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, HuaWeiShutdownAntiAddiction);
 	}
 }

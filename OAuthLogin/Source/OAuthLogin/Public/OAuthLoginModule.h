@@ -9,10 +9,12 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogOAuthLogin, Log, All);
 
+DECLARE_DELEGATE_ThreeParams(FOnInitEvent, FName /*ChannelName*/, EOAuthResponse /*Code*/, bool /*bWasCompleted*/);
+
 typedef TSharedPtr<FGenericOAuthLogin> FOAuthLoginPtr;
 typedef TSharedRef<FGenericOAuthLogin> FOAuthLoginRef;
 
-class OAUTHLOGIN_API FOAuthLoginModule : public IModuleInterface
+class FOAuthLoginModule : public IModuleInterface
 {
 public:
 
@@ -20,23 +22,31 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-	static inline FOAuthLoginModule& Get()
+	OAUTHLOGIN_API static inline FOAuthLoginModule& Get()
 	{
 		return FModuleManager::LoadModuleChecked<FOAuthLoginModule>("OAuthLogin");
 	}
 
-	static inline bool IsAvailable()
+	OAUTHLOGIN_API static inline bool IsAvailable()
 	{
 		return FModuleManager::Get().IsModuleLoaded("OAuthLogin");
 	}
 
-	FOAuthLoginPtr GetOAuthLogin(FName ChannelName);
+	OAUTHLOGIN_API FOAuthLoginPtr GetOAuthLogin(FName ChannelName);
+
+	OAUTHLOGIN_API void Register(FName ChannelName, FOAuthLoginRef LoginChannel);
+	OAUTHLOGIN_API void Unregister(FName ChannelName);
 
 	void Init();
 	bool IsEnabled(FName ChannelName) const;
-	void Register(FName ChannelName, FOAuthLoginRef LoginChannel);
-	void Unregister(FName ChannelName);
+
+public:
+	FOnInitEvent OnInitEvent;
 
 private:
 	static TMap<FName, FOAuthLoginRef> LoginChannels;
+
+	int32 Count;
+
+	int32 Total;
 };

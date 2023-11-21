@@ -13,7 +13,9 @@
 	
     <buildGradleAdditions>
 		<insert>
-			dependencies.implementation('com.google.code.gson:gson:2.8.5')
+			dependencies {
+				implementation 'com.google.code.gson:gson:2.8.5'
+			}
 		</insert>
     </buildGradleAdditions>
 
@@ -24,9 +26,7 @@
 	<!-- optional additions to proguard -->
 	<proguardAdditions>
 		<insert>
--keep class epicgames.ue4.OAuthLogin.** {
-	public *;
-}
+-keep class epicgames.ue4.OAuthLogin.**{*;}
 		</insert>
 	</proguardAdditions>
 
@@ -38,8 +38,8 @@
 	<gameActivityImportAdditions>
 		<insert>
 import com.epicgames.ue4.OAuthLogin;
-import com.epicgames.ue4.OAuthData;
-import com.epicgames.ue4.AntiAddictionData;
+import com.epicgames.ue4.OAuthLogin.OAuthData;
+import com.epicgames.ue4.OAuthLogin.AntiAddictionData;
 		</insert>
 	</gameActivityImportAdditions>
 

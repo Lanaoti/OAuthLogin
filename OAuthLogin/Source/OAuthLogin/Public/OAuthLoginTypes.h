@@ -19,7 +19,7 @@ enum class EOAuthLoginType : uint8
 };
 
 UENUM(BlueprintType)
-enum class EOAuthLoginResponse : uint8
+enum class EOAuthResponse : uint8
 {
 	Success,				// 成功
 	Canceled,				// 取消
@@ -28,9 +28,18 @@ enum class EOAuthLoginResponse : uint8
 };
 
 USTRUCT(BlueprintType)
+struct FOAuthInitData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
+	EOAuthResponse Code;
+};
+
+USTRUCT(BlueprintType)
 struct FOAuthData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	FString UID;
@@ -39,7 +48,7 @@ struct FOAuthData
 	FString Nickname;
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	FString Avator;
+	FString Avatar;
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	FString Key;
@@ -51,47 +60,56 @@ struct FOAuthData
 USTRUCT(BlueprintType)
 struct FOAuthLoginData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	EOAuthLoginResponse Code;
+	EOAuthResponse Code;
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	FOAuthData OAuthData;
+	FOAuthData Data;
 };
 
 USTRUCT(BlueprintType)
 struct FOAuthLogoutData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	EOAuthLoginResponse Code;
+	EOAuthResponse Code;
 };
 
 UENUM(BlueprintType)
 enum class EAntiAddictionEvent : uint8
 {
-	Init,					// 初始化
+	Startup,					// 启动
+	Shutdown,					// 关闭
 };
 
 USTRUCT(BlueprintType)
 struct FAntiAddictionData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 };
 
 USTRUCT(BlueprintType)
 struct FAntiAddictionEventData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	EAntiAddictionEvent Event;
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	EOAuthLoginResponse Code;
+	EOAuthResponse Code;
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	FAntiAddictionData AntiAddictionData;
+	FAntiAddictionData Data;
+};
+
+namespace OAuthLogin
+{
+	template<typename T> FString ToString(T Value)
+	{
+		return FString::Printf(TEXT("%d"), (int32)Value);
+	}
 };

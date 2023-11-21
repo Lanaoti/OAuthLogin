@@ -2,13 +2,14 @@
 
 #pragma once
 
-#include "OAuthLoginModule.h"
+#include "CoreMinimal.h"
+#include "Modules/ModuleManager.h"
 
 #define HAOYOUKUAIBAO_CHANNEL_NAME TEXT("HaoYouKuaiBao")
 
 DECLARE_LOG_CATEGORY_EXTERN(LogHaoYouKuaiBao, Log, All);
 
-class FHaoYouKuaiBaoModule : public FOAuthLoginModule
+class FHaoYouKuaiBaoModule : public IModuleInterface
 {
 public:
 

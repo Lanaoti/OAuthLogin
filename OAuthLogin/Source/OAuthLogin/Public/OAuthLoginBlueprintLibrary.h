@@ -7,9 +7,10 @@
 #include "OAuthLoginTypes.h"
 #include "OAuthLoginBlueprintLibrary.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FOAuthLoginDelegate, EOAuthLoginResponse, Code, const FOAuthData&, OAuthData);
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOAuthLogoutDelegate, EOAuthLoginResponse, Code);
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FAntiAddictionEventDelegate, EAntiAddictionEvent, Event, EOAuthLoginResponse, Code, const FAntiAddictionData&, AntiAddictionData);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOAuthInitDelegate, FName, ChannelName, EOAuthResponse, Code, bool, bWasCompleted);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOAuthLoginDelegate, EOAuthResponse, Code, const FOAuthData&, Data);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOAuthLogoutDelegate, EOAuthResponse, Code);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FAntiAddictionEventDelegate, EAntiAddictionEvent, Event, EOAuthResponse, Code, const FAntiAddictionData&, Data);
 
 UCLASS()
 class OAUTHLOGIN_API UOAuthLoginBlueprintLibrary : public UBlueprintFunctionLibrary
@@ -19,7 +20,7 @@ class OAUTHLOGIN_API UOAuthLoginBlueprintLibrary : public UBlueprintFunctionLibr
 public:
 
 	UFUNCTION(BlueprintCallable, Category = OAuthLogin)
-	static void Init();
+	static void Init(FOAuthInitDelegate Delegate);
 
 	UFUNCTION(BlueprintCallable, Category = OAuthLogin)
 	static bool IsEnabled(FName ChannelName);

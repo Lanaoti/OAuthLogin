@@ -1,6 +1,7 @@
 // Copyright 2022 CQUnreal. All Rights Reserved.
 
 #include "GoogleModule.h"
+#include "OAuthLoginModule.h"
 #if PLATFORM_ANDROID
 #include "Android/AndroidGoogle.h"
 #elif PLATFORM_IOS
@@ -15,24 +16,20 @@ DEFINE_LOG_CATEGORY(LogGoogle);
 
 void FGoogleModule::StartupModule()
 {
-	FOAuthLoginModule::StartupModule();
-
 	UE_LOG(LogGoogle, Log, TEXT("FGoogleModule::StartupModule"));
 
 #if PLATFORM_ANDROID
-	Register(GOOGLE_CHANNEL_NAME, MakeShared<FAndroidGoogle>());
+	FOAuthLoginModule::Get().Register(GOOGLE_CHANNEL_NAME, MakeShared<FAndroidGoogle>());
 #elif PLATFORM_IOS
-	Register(GOOGLE_CHANNEL_NAME, MakeShared<FIOSGoogle>());
+	FOAuthLoginModule::Get().Register(GOOGLE_CHANNEL_NAME, MakeShared<FIOSGoogle>());
 #endif
 }
 
 void FGoogleModule::ShutdownModule()
 {
-	FOAuthLoginModule::StartupModule();
-
 	UE_LOG(LogGoogle, Log, TEXT("FGoogleModule::ShutdownModule"));
 
-	Unregister(GOOGLE_CHANNEL_NAME);
+	FOAuthLoginModule::Get().Unregister(GOOGLE_CHANNEL_NAME);
 }
 
 #undef LOCTEXT_NAMESPACE

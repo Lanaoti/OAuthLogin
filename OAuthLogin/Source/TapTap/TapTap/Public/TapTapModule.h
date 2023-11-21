@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OAuthLoginModule.h"
+#include "Modules/ModuleManager.h"
 
-#define TAPTAP_CHANNEL_NAME TEXT("Google")
+#define TAPTAP_CHANNEL_NAME TEXT("TapTap")
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTapTap, Log, All);
 
-class FTapTapModule : public FOAuthLoginModule
+class FTapTapModule : public IModuleInterface
 {
 public:
 

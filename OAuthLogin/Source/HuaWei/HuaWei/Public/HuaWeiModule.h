@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "GenericHuaWei.h"
 
-typedef TSharedPtr<FGenericHuaWei> FHuaWeiPtr;
+#define HUAWEI_CHANNEL_NAME TEXT("HuaWei")
+
+DECLARE_LOG_CATEGORY_EXTERN(LogHuaWei, Log, All);
 
 class FHuaWeiModule : public IModuleInterface
 {
@@ -15,18 +16,4 @@ public:
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-
-	static inline FHuaWeiModule& Get()
-	{
-		return FModuleManager::LoadModuleChecked<FHuaWeiModule>("HuaWei");
-	}
-
-	static inline bool IsAvailable()
-	{
-		return FModuleManager::Get().IsModuleLoaded("HuaWei");
-	}
-
-	FHuaWeiPtr GetHuaWei();
-private:
-	FHuaWeiPtr HuaWei;
 };

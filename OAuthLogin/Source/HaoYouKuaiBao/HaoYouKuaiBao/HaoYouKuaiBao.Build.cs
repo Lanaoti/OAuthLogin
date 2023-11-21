@@ -31,7 +31,6 @@ public class HaoYouKuaiBao : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-                "JSON",
                 "OAuthLogin",
                 "HaoYouKuaiBaoSDK"
             });

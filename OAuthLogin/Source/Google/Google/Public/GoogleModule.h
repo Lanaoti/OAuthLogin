@@ -2,13 +2,14 @@
 
 #pragma once
 
-#include "OAuthLoginModule.h"
+#include "CoreMinimal.h"
+#include "Modules/ModuleManager.h"
 
 #define GOOGLE_CHANNEL_NAME TEXT("Google")
 
 DECLARE_LOG_CATEGORY_EXTERN(LogGoogle, Log, All);
 
-class FGoogleModule : public FOAuthLoginModule
+class FGoogleModule : public IModuleInterface
 {
 public:
 

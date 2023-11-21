@@ -79,14 +79,18 @@ void FAndroidFacebook::Logout()
 
 void FAndroidFacebook::StartupAntiAddiction()
 {
-	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(FACEBOOK_CHANNEL_NAME);
+	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(GOOGLE_CHANNEL_NAME);
 	if (LoginChannel.IsValid())
 	{
-		LoginChannel->OnAntiAddictionEvent.ExecuteIfBound(TEXT(""));
+		LoginChannel->OnAntiAddictionEvent.ExecuteIfBound(TEXT("{ \"Event\": " + OAuthLogin::ToString(EAntiAddictionEvent::Startup) + ", \"Code\": " + OAuthLogin::ToString(EOAuthResponse::Success) + ", \"Data\": {} }"));
 	}
 }
 
 void FAndroidFacebook::ShutdownAntiAddiction()
 {
-
+	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(GOOGLE_CHANNEL_NAME);
+	if (LoginChannel.IsValid())
+	{
+		LoginChannel->OnAntiAddictionEvent.ExecuteIfBound(TEXT("{ \"Event\": " + OAuthLogin::ToString(EAntiAddictionEvent::Shutdown) + ", \"Code\": " + OAuthLogin::ToString(EOAuthResponse::Success) + ", \"Data\": {} }"));
+	}
 }

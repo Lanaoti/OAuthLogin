@@ -1,6 +1,7 @@
 // Copyright 2023 CQUnreal. All Rights Reserved.
 
 #include "AndroidGoogle.h"
+#include "OAuthLoginModule.h"
 #include "GoogleModule.h"
 #include "Android/AndroidJavaEnv.h"
 
@@ -106,11 +107,15 @@ void FAndroidGoogle::StartupAntiAddiction()
 	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(GOOGLE_CHANNEL_NAME);
 	if (LoginChannel.IsValid())
 	{
-		LoginChannel->OnAntiAddictionEvent.ExecuteIfBound(TEXT(""));
+		LoginChannel->OnAntiAddictionEvent.ExecuteIfBound(TEXT("{ \"Event\": " + OAuthLogin::ToString(EAntiAddictionEvent::Startup) + ", \"Code\": " + OAuthLogin::ToString(EOAuthResponse::Success) + ", \"Data\": {} }"));
 	}
 }
 
 void FAndroidGoogle::ShutdownAntiAddiction()
 {
-
+	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(GOOGLE_CHANNEL_NAME);
+	if (LoginChannel.IsValid())
+	{
+		LoginChannel->OnAntiAddictionEvent.ExecuteIfBound(TEXT("{ \"Event\": " + OAuthLogin::ToString(EAntiAddictionEvent::Shutdown) + ", \"Code\": " + OAuthLogin::ToString(EOAuthResponse::Success) + ", \"Data\": {} }"));
+	}
 }

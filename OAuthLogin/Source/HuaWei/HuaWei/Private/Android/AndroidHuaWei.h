@@ -1,27 +1,27 @@
-// Copyright 2022 CQUnreal. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GenericHuaWei.h"
+#include "GenericOAuthLogin.h"
 
 #include "Android/AndroidJNI.h"
 #include "Android/AndroidApplication.h"
 
-class FAndroidHuaWei : public FGenericHuaWei
+class FAndroidHuaWei : public FGenericOAuthLogin
 {
 public:
 	FAndroidHuaWei();
 	virtual ~FAndroidHuaWei();
 
-	virtual void OnStartup() override;
-	virtual void OnShutdown() override;
-
-	virtual void Init() override;
+	virtual void Init()override;
 	virtual void Login() override;
-	virtual void SilentLogin() override;
+	virtual void Logout() override;
+	virtual void StartupAntiAddiction() override;
+	virtual void ShutdownAntiAddiction() override;
 
+	// JNI Methods
 	static jmethodID HuaWeiInit;
 	static jmethodID HuaWeiLogin;
-	static jmethodID HuaWeiSilentLogin;
+	static jmethodID HuaWeiLogout;
+	static jmethodID HuaWeiStartupAntiAddiction;
+	static jmethodID HuaWeiShutdownAntiAddiction;
 };

@@ -13,6 +13,30 @@
 		<copyFile src="$S(PluginDir)/Android/libs/hykb-login.aar" dst="$S(BuildDir)/libs/HaoYouKuaiBao/hykb-login.aar" force="true"/>
 		<copyFile src="$S(PluginDir)/Android/libs/hykb-common.aar" dst="$S(BuildDir)/libs/HaoYouKuaiBao/hykb-common.aar" force="true"/>
 	</resourceCopies>
+
+	<buildGradleAdditions>
+		<insert>
+			android {
+				defaultConfig {
+					//方法数超过65536时，开启多dex的支持
+					multiDexEnabled true
+				}
+
+				repositories {
+					flatDir {
+						dirs 'src/main/libs/HaoYouKuaiBao/'
+					}
+				}
+			}
+			
+			dependencies {
+				implementation (name:'hykb-common',ext:'aar')
+				implementation (name:'hykb-login',ext:'aar')
+				implementation (name:'hykb-anti',ext:'aar')
+				implementation (name:'hykb-single',ext:'aar')
+			}
+		</insert>
+	</buildGradleAdditions>
 	
 	<proguardAdditions>
 		<insert>
@@ -22,7 +46,7 @@
 -keep class com.m3839.sdk.login.**{*;}
 -keep class com.m3839.sdk.single.**{*;}
 -keepclasseswithmembernames class com.m3839.sdk.common.js.JsInterface {
-    &lt;methods>&gt;;
+    &lt;methods&gt;;
 }
 		</insert>
 	</proguardAdditions>
@@ -139,7 +163,7 @@ import com.m3839.sdk.single.UnionFcmUser;
 				if(user != null) {
 					Log.debug("好游快爆防沉迷初始化成功 user = " + user.toString());
 
-					nativeHaoYouKuaiBaoAntiAddictionEvent(OAuthLogin.makeAntiAddictionEventData(OAuthLogin.ANTI_ADDICTION_INIT, OAuthLogin.RESPONSE_SUCCESS, getAntiAddictionData(user)));
+					nativeHaoYouKuaiBaoAntiAddictionEvent(OAuthLogin.makeAntiAddictionEventData(OAuthLogin.ANTI_ADDICTION_STARTUP, OAuthLogin.RESPONSE_SUCCESS, getAntiAddictionData(user)));
 				}
 			}
 
@@ -147,7 +171,7 @@ import com.m3839.sdk.single.UnionFcmUser;
 			public void onFailed(int code, String message) {
 				Log.debug("防沉迷初始化成功失败：code:" + code + "，message:" + message);
 
-				nativeHaoYouKuaiBaoAntiAddictionEvent(OAuthLogin.makeAntiAddictionEventData(OAuthLogin.ANTI_ADDICTION_INIT, OAuthLogin.RESPONSE_SYSTEM_ERROR, null));
+				nativeHaoYouKuaiBaoAntiAddictionEvent(OAuthLogin.makeAntiAddictionEventData(OAuthLogin.ANTI_ADDICTION_STARTUP, OAuthLogin.RESPONSE_SYSTEM_ERROR, null));
 			}
 		});
 	}
@@ -164,7 +188,7 @@ import com.m3839.sdk.single.UnionFcmUser;
 		OAuthData oauthData = new OAuthData();
 		oauthData.UID = user.getUserId();
 		oauthData.Nickname = user.getNick();
-		oauthData.Avator = "";
+		oauthData.Avatar = "";
 		oauthData.Key = user.getToken();
 		oauthData.AccessToken = user.getAccessToken();
 		
@@ -179,28 +203,4 @@ import com.m3839.sdk.single.UnionFcmUser;
 	}
 		</insert>
 	</gameActivityClassAdditions>
-
-	<buildGradleAdditions>
-		<insert>
-			android {
-				defaultConfig {
-					//方法数超过65536时，开启多dex的支持
-					multiDexEnabled true
-				}
-
-				repositories {
-					flatDir {
-						dirs 'src/main/libs/HaoYouKuaiBao/'
-					}
-				}
-			}
-			
-			dependencies {
-				implementation (name:'hykb-common',ext:'aar')
-				implementation (name:'hykb-login',ext:'aar')
-				implementation (name:'hykb-anti',ext:'aar')
-				implementation (name:'hykb-single',ext:'aar')
-			}
-		</insert>
-	</buildGradleAdditions>
 </root>

@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root xmlns:android="http://schemas.android.com/apk/res/android">
 	<init>
-		<setStringFromProperty result="ClientID" ini="Game" section="/Script/Google.GoogleSettings" property="ClientID" default=""/>
 	</init>
 
 	<resourceCopies>
@@ -9,27 +8,6 @@
 	
 	<!-- optional updates applied to AndroidManifest.xml -->
 	<androidManifestUpdates>
-		<setStringFromAttribute result="PackageName" tag="manifest" name="package"/>
-		
-		<setElement result="SignInHubActivity" value="activity" />
-		<addAttribute tag="$SignInHubActivity" name="android:name" value="com.google.android.gms.auth.api.signin.internal.SignInHubActivity" />
-		<addAttribute tag="$SignInHubActivity" name="android:excludeFromRecents" value="true" />
-		<addAttribute tag="$SignInHubActivity" name="android:exported" value="false" />
-		<addAttribute tag="$SignInHubActivity" name="android:theme" value="@android:style/Theme.Translucent.NoTitleBar" />
-		<addElement tag="application" name="SignInHubActivity" />
-
-		<setElement result="RevokeService" value="service" />
-		<addAttribute tag="$RevokeService" name="android:name" value="com.google.android.gms.auth.api.signin.RevocationBoundService" />
-		<addAttribute tag="$RevokeService" name="android:exported" value="true" />
-		<addAttribute tag="$RevokeService" name="android:permission" value="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION" />
-		<addElement tag="application" name="RevokeService" />
-
-		<setElement result="GoogleApiActivity" value="activity" />
-		<addAttribute tag="$GoogleApiActivity" name="android:name" value="com.google.android.gms.common.api.GoogleApiActivity" />
-		<addAttribute tag="$GoogleApiActivity" name="android:exported" value="false" />
-		<addAttribute tag="$GoogleApiActivity" name="android:theme" value="@android:style/Theme.Translucent.NoTitleBar" />
-		<addElement tag="application" name="GoogleApiActivity" />
-		
 		<!-- Add permissions -->
 		<addPermission android:name="android.permission.INTERNET" />
 		<addPermission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -42,258 +20,43 @@
 
 	<gameActivityImportAdditions>
 		<insert>
-import androidx.annotation.NonNull;
 
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 		</insert>
 	</gameActivityImportAdditions>
 	
 	<gameActivityClassAdditions>
 		<insert>
-	/** Responses supported by this class */
-	public static final int GOOGLE_RESPONSE_OK = 0;
-	public static final int GOOGLE_RESPONSE_CANCELED = 1;
-	public static final int GOOGLE_RESPONSE_ERROR = 2;
-	public static final int GOOGLE_RESPONSE_DEVELOPER_ERROR = 3;
-			
-	/** Unique request id when using sign in activity */
-	private static final int REQUEST_SIGN_IN = 9001;
-			
-	/** Google API client needed for actual sign in */
-	private GoogleSignInClient mGoogleSignInClient;
-			
 	// Callback that notify the C++ implementation that a task has completed
-	public native void nativeGoogleLoginComplete(String Data);
-	public native void nativeGoogleLogoutComplete(String Data);
+	public native void nativeFacebookLoginComplete(String Data);
+	public native void nativeFacebookLogoutComplete(String Data);
 			
-	// 初始化Google SDK
-	public void AndroidThunkJava_Google_Init()
+	// 初始化Facebook SDK
+	public void AndroidThunkJava_Facebook_Init()
 	{
-		Log.debug("AndroidThunkJava_Google_Init");
-				
-		boolean bInitialized = false;
-				
-		String clientId = "</insert><insertValue value="$S(ClientID)"/><insert>";
-		Log.debug("GooglePlay Services available with clientId:" + clientId);
-		
-		boolean bClientIdValid = (clientId != null &amp;&amp; !clientId.isEmpty());
-		if (bClientIdValid)
-		{
-			boolean bIsAvailable = isGooglePlayServicesAvailable();
-			Log.debug("Is GooglePlay Services Available:" + bIsAvailable);
-			if (bIsAvailable)
-			{
-				// Configure sign-in to request the user's ID, email address, and basic
-				// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-				GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-						.requestProfile()
-						.requestEmail()
-						.requestIdToken(clientId)
-						//.requestServerAuthCode(clientId)
-						.build();
-
-				// Build a GoogleSignInClient with the options specified by gso.
-				mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-				
-				bInitialized = true;
-			}
-		}
-		else
-		{
-			Log.debug("clientId: " + clientId + " is invalid");
-		}
-
-		Log.debug("init complete: " + bInitialized);
+		Log.debug("AndroidThunkJava_Facebook_Init");
 	}
 			
-	// Google登录
-	public void AndroidThunkJava_Google_Login()
+	// Facebook登录
+	public void AndroidThunkJava_Facebook_Login()
 	{
-		Log.debug("AndroidThunkJava_Google_Login");
-
-		Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-		if (signInIntent != null)
-		{
-			Log.debug("login start activity:");
-			this.startActivityForResult(signInIntent, REQUEST_SIGN_IN);
-		} 
-		else 
-		{
-			Log.debug("getSignInIntent failure:");
-					
-			String Result = "{\"Code\": " + GOOGLE_RESPONSE_ERROR + ","+ "\"Data\": {}}";
-			nativeGoogleLoginComplete(Result);
-		}
+		Log.debug("AndroidThunkJava_Facebook_Login");
 	}
 			
-	// Google注销登录
-	public void AndroidThunkJava_Google_Logout()
+	// Facebook注销登录
+	public void AndroidThunkJava_Facebook_Logout()
 	{
-		Log.debug("AndroidThunkJava_Google_Logout");
-
-		mGoogleSignInClient.signOut()
-			.addOnCompleteListener(this, new OnCompleteListener&lt;Void&gt;()
-			{
-				@Override
-				public void onComplete(@NonNull Task&lt;Void&gt; task) 
-				{
-					boolean bWasSuccessful = task.isSuccessful();
-					Log.debug("onSignOut Complete success:" + bWasSuccessful);
-							
-					String Result = "{\"Code\": " + (bWasSuccessful ? GOOGLE_RESPONSE_OK : GOOGLE_RESPONSE_ERROR) + "," + "\"Data\": {}}";
-					nativeGoogleLogoutComplete(Result);
-				}
-			});
-	}
-			
-	private String getLoginJsonStr(GoogleSignInAccount acct)
-	{
-		if (acct != null)
-		{
-			return "{\"UserData\":" + getUserJsonStr(acct) + "," +
-					"\"AuthData\":" + getAuthTokenJsonStr(acct) + "}";
-		}
-
-		return "";
-	}
-
-	private String getUserJsonStr(GoogleSignInAccount acct)
-	{
-		if (acct != null)
-		{
-			return "{\"Sub\":\""+ acct.getId() + "\"," +
-					"\"GivenName\":\"" + acct.getGivenName()  + "\"," +
-					"\"FamilyName\":\"" + acct.getFamilyName() + "\"," +
-					"\"Name\":\"" + acct.getDisplayName() + "\"," +
-					"\"Picture\":\"" + acct.getPhotoUrl() + "\"" + "}";
-		}
-		return "";
-	}
-
-	private String getAuthTokenJsonStr(GoogleSignInAccount acct)
-	{
-		if (acct != null)
-		{
-			return "{\"ServerAuthCode\":\"" + acct.getServerAuthCode() + "\"," +
-					"\"IDToken\":\""+ acct.getIdToken() + "\"}";
-		}
-		return "";
-	}
-
-	public void PrintUserAccountInfo(GoogleSignInAccount acct)
-	{
-		Log.debug("PrintUserAccountInfo");
-		if (acct != null)
-		{
-			Log.debug("User Details:");
-			Log.debug("    DisplayName:" + acct.getDisplayName());
-			Log.debug("    Id:" + acct.getId());
-			Log.debug("    Email:" + acct.getEmail());
-			Log.debug("    Account:" + acct.getAccount().toString());
-			Log.debug("    Scopes:" + acct.getGrantedScopes());
-			Log.debug("    IdToken:" + acct.getIdToken());
-			Log.debug("    ServerAuthCode:" + acct.getServerAuthCode());
-		}
-		else
-		{
-			Log.debug("Account is null");
-		}
-	}
-
-	private boolean isGooglePlayServicesAvailable() 
-	{
-		GoogleApiAvailability apiAvail = GoogleApiAvailability.getInstance();
-		int status = apiAvail.isGooglePlayServicesAvailable(this);
-		Log.debug("isGooglePlayServicesAvailable statusCode: " + status);
-		if (status == ConnectionResult.SUCCESS) 
-		{
-			return true;
-		} 
-		else 
-		{
-			return false;
-		}
+		Log.debug("AndroidThunkJava_Facebook_Logout");
 	}
 		</insert>
 	</gameActivityClassAdditions>
 	
 	<gameActivityOnActivityResultAdditions>
 		<insert>
-		// Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-		if (requestCode == REQUEST_SIGN_IN) 
-		{
-			Log.debug("onActivityResult REQUEST_SIGN_IN");
-			Log.debug("data: " + ((data != null) ? data.toString() : "null"));
-
-			if (resultCode == Activity.RESULT_OK)
-			{
-				Log.debug("signing in");
-			}
-
-			Task&lt;GoogleSignInAccount&gt; completedTask = GoogleSignIn.getSignedInAccountFromIntent(data);
-			try
-			{
-				// Try to access the account result
-				GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-					
-				// Signed in successfully
-				Log.debug("Sign in success");
-				PrintUserAccountInfo(account);
-
-				String Result = "{\"Code\": " + GOOGLE_RESPONSE_OK + ","+ "\"Data\": " + getLoginJsonStr(account) + "}";
-				nativeGoogleLoginComplete(Result);
-			}
-			catch (ApiException e)
-			{
-				// The ApiException status code indicates the detailed failure reason.
-				// Please refer to the GoogleSignInStatusCodes class reference for more information.
-				Log.debug("Sign in failure:" + GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()));
-				if (e.getStatusCode() == GoogleSignInStatusCodes.DEVELOPER_ERROR)
-				{
-					String Result = "{\"Code\": " + GOOGLE_RESPONSE_DEVELOPER_ERROR + ","+ "\"Data\": {}}";
-					nativeGoogleLoginComplete(Result);
-				}
-				else
-				{				
-					String Result = "{\"Code\": " + GOOGLE_RESPONSE_ERROR + ","+ "\"Data\": {}}";
-					nativeGoogleLoginComplete(Result);
-				}
-			}
-
-			Log.debug("onActivityResult end");
-		}
-		
 		</insert>
 	</gameActivityOnActivityResultAdditions>
 
 	<buildGradleAdditions>
 		<insert>
-			android {
-				defaultConfig {
-				
-				}
-			}
-
-			repositories {
-				google()
-
-				// If you're using a version of Gradle lower than 4.1, you must instead use:
-				// maven {
-				//     url 'https://maven.google.com'
-				// }
-			}
-			
-			dependencies {
-				implementation 'com.google.android.gms:play-services-auth:20.7.0'
-			}
 		</insert>
 	</buildGradleAdditions>
 </root>

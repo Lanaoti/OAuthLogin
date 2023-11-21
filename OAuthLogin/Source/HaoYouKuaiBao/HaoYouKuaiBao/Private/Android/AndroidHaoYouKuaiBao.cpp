@@ -1,4 +1,5 @@
 #include "AndroidHaoYouKuaiBao.h"
+#include "OAuthLoginModule.h"
 #include "HaoYouKuaiBaoModule.h"
 #include "Android/AndroidJavaEnv.h"
 

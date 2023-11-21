@@ -36,7 +36,8 @@ public class HuaWei : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"HuaWeiSDK"
+                "OAuthLogin",
+                "HuaWeiSDK"
 			}
 			);
 		

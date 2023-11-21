@@ -5,6 +5,7 @@
 		"Facebook": "UE4Editor-Facebook.dll",
 		"Google": "UE4Editor-Google.dll",
 		"HaoYouKuaiBao": "UE4Editor-HaoYouKuaiBao.dll",
+		"HuaWei": "UE4Editor-HuaWei.dll",
 		"OAuthLogin": "UE4Editor-OAuthLogin.dll",
 		"TapTap": "UE4Editor-TapTap.dll"
 	}
