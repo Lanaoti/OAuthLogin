@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Widgets/Layout/SBorder.h"
 
 /**
  * 
@@ -10,6 +11,8 @@
 class TAPCOMMON_API STapRoundCornersBorder : public SBorder, public FGCObject
 {
 public:
+	virtual FString GetReferencerName() const { return TEXT("STapRoundCornersBorder"); }
+
 	SLATE_BEGIN_ARGS(STapRoundCornersBorder)
 		{
 		}

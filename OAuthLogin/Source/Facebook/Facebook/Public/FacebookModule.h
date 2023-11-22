@@ -2,13 +2,14 @@
 
 #pragma once
 
-#include "OAuthLoginModule.h"
+#include "CoreMinimal.h"
+#include "Modules/ModuleManager.h"
 
 #define FACEBOOK_CHANNEL_NAME TEXT("Facebook")
 
 DECLARE_LOG_CATEGORY_EXTERN(LogFacebook, Log, All);
 
-class FFacebookModule : public FOAuthLoginModule
+class FFacebookModule : public IModuleInterface
 {
 public:
 

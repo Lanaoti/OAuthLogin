@@ -563,13 +563,22 @@ void STapLoginWidget::StartCheckQrCode()
 		{
 			StopCheckQrCode();
 		}
+
+	#if UE_VERSION_NEWER_THAN(5, 0, 0)
+		CheckQcCodeTimer = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateSP(this, &STapLoginWidget::TimerCheckQrCode), QrCodeModel->interval);
+	#else
 		CheckQcCodeTimer = FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateSP(this, &STapLoginWidget::TimerCheckQrCode), QrCodeModel->interval);
+	#endif
 	}
 }
 
 void STapLoginWidget::StopCheckQrCode()
 {
+#if UE_VERSION_NEWER_THAN(5, 0, 0)
+	FTSTicker::GetCoreTicker().RemoveTicker(CheckQcCodeTimer);
+#else
 	FTicker::GetCoreTicker().RemoveTicker(CheckQcCodeTimer);
+#endif
 	CheckQcCodeTimer.Reset();
 }
 

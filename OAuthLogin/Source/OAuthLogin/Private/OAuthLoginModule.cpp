@@ -76,11 +76,11 @@ void FOAuthLoginModule::ShutdownModule()
 #endif
 
 #if ENABLE_FACEBOOK
-	FModuleManager::Get().LoadModuleChecked(TEXT("Facebook"), true);
+	FModuleManager::Get().UnloadModule(TEXT("Facebook"), true);
 #endif
 
 #if ENABLE_STEAM
-	FModuleManager::Get().LoadModuleChecked(TEXT("Steam"), true);
+	FModuleManager::Get().UnloadModule(TEXT("Steam"), true);
 #endif
 }
 

@@ -26,6 +26,8 @@ class SImage;
 class TAPCOMMON_API STapToast : public SCompoundWidget, public FGCObject
 {
 public:
+	virtual FString GetReferencerName() const { return TEXT("STapToast"); }
+
 	SLATE_BEGIN_ARGS(STapToast)
 	{}
 	
