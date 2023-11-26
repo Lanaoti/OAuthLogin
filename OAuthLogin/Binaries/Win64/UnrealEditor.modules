@@ -1,0 +1,12 @@
+{
+	"BuildId": "27405482",
+	"Modules": 
+	{
+		"Facebook": "UnrealEditor-Facebook.dll",
+		"Google": "UnrealEditor-Google.dll",
+		"HaoYouKuaiBao": "UnrealEditor-HaoYouKuaiBao.dll",
+		"HuaWei": "UnrealEditor-HuaWei.dll",
+		"OAuthLogin": "UnrealEditor-OAuthLogin.dll",
+		"TapTap": "UnrealEditor-TapTap.dll"
+	}
+}
