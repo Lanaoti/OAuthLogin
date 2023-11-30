@@ -11,6 +11,8 @@
 class TAPCOMMON_API STapRoundCornersImage : public SImage, public FGCObject
 {
 public:
+	virtual FString GetReferencerName() const { return TEXT("STapRoundCornersImage"); }
+
 	SLATE_BEGIN_ARGS(STapRoundCornersImage)
 		{
 		}

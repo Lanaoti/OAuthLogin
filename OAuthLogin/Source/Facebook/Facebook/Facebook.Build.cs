@@ -31,7 +31,7 @@ public class Facebook : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-                "JSON",
+                "Json",
                 "OAuthLogin",
                 "FacebookSDK"
             });

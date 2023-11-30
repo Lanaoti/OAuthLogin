@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/EngineVersionComparison.h"
 #include "Widgets/SCompoundWidget.h"
 
 class TUWebAuthHelper;
@@ -22,6 +23,10 @@ class TAPLOGIN_API STapLoginWidget : public SCompoundWidget, public FGCObject
 public:
 	STapLoginWidget();
 		
+#if UE_VERSION_NEWER_THAN(5, 0, 0)
+	virtual FString GetReferencerName() const { return TEXT("TapLoginWidget"); }
+#endif
+
 	SLATE_BEGIN_ARGS(STapLoginWidget)
 		{
 		}
@@ -94,7 +99,11 @@ protected:
 	
 	TArray<FString> Permissions;
 
+#if UE_VERSION_NEWER_THAN(5, 0, 0)
+	FTSTicker::FDelegateHandle CheckQcCodeTimer;
+#else
 	FDelegateHandle CheckQcCodeTimer;
+#endif
 	TSharedPtr<FTUQrCodeModel> QrCodeModel;
 
 	TSharedPtr<TUWebAuthHelper> WebAuthHelper;

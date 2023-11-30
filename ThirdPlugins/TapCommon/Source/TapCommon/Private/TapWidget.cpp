@@ -39,3 +39,10 @@ void UTapWidget::RemoveFromParent()
 		}
 	}
 }
+
+#if UE_VERSION_NEWER_THAN(5, 0, 0)
+void UTapWidget::OnLevelRemovedFromWorld(ULevel* Level, UWorld* World)
+{
+	RemoveFromParent();
+}
+#endif

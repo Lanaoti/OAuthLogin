@@ -31,7 +31,7 @@ public class Google : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-                "JSON",
+                "Json",
                 "OAuthLogin",
                 "GoogleSDK"
             });
