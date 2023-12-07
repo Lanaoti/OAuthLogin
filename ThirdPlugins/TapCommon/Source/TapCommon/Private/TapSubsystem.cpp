@@ -79,10 +79,12 @@ void UTapSubsystem::SetupTapWidgetScaler()
 
 void UTapSubsystem::Deinitialize()
 {
-	check(GEngine && GEngine->GameViewport);
-	if (Scaler)
+	if (GEngine && GEngine->GameViewport)
 	{
-		GEngine->GameViewport->RemoveViewportWidgetContent(Scaler.ToSharedRef());
+		if (Scaler)
+		{
+			GEngine->GameViewport->RemoveViewportWidgetContent(Scaler.ToSharedRef());
+		}
 	}
 	Overlay.Reset();
 	Scaler.Reset();
