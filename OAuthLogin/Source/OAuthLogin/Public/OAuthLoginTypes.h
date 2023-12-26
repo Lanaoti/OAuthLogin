@@ -34,6 +34,12 @@ struct FOAuthInitData
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	EOAuthResponse Code;
+
+	FOAuthInitData()
+		: Code(EOAuthResponse::Success)
+	{
+
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -55,6 +61,16 @@ struct FOAuthData
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	FString AccessToken;
+
+	FOAuthData()
+		: UID(TEXT(""))
+		, Nickname(TEXT(""))
+		, Avatar(TEXT(""))
+		, Key(TEXT(""))
+		, AccessToken(TEXT(""))
+	{
+
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -67,6 +83,12 @@ struct FOAuthLoginData
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	FOAuthData Data;
+
+	FOAuthLoginData()
+		: Code(EOAuthResponse::Success)
+	{
+
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -76,6 +98,12 @@ struct FOAuthLogoutData
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	EOAuthResponse Code;
+
+	FOAuthLogoutData()
+		: Code(EOAuthResponse::Success)
+	{
+
+	}
 };
 
 UENUM(BlueprintType)
@@ -89,6 +117,11 @@ USTRUCT(BlueprintType)
 struct FAntiAddictionData
 {
 	GENERATED_BODY()
+
+	FAntiAddictionData()
+	{
+
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -104,6 +137,13 @@ struct FAntiAddictionEventData
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
 	FAntiAddictionData Data;
+
+	FAntiAddictionEventData()
+		: Event(EAntiAddictionEvent::Startup)
+		, Code(EOAuthResponse::Success)
+	{
+
+	}
 };
 
 namespace OAuthLogin

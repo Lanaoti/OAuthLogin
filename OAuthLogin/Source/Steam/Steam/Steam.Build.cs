@@ -33,6 +33,7 @@ public class Steam : ModuleRules
                 "Engine",
                 "Json",
                 "OAuthLogin",
+                "OnlineSubsystem",
                 "OnlineSubsystemSteam"
             });
 

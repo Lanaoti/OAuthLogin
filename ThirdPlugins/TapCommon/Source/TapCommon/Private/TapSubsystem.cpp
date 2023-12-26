@@ -92,11 +92,18 @@ void UTapSubsystem::Deinitialize()
 
 float UTapSubsystem::CalculateTapDPI() const
 {
-	float GameScale = UWidgetLayoutLibrary::GetViewportScale(GEngine->GameViewport);
+	float GameScale = 1.f;
+	float DefaultScale = 1.f;
 
-	FVector2D ViewportSize;
-	GEngine->GameViewport->GetViewportSize(ViewportSize);
-	float DefaultScale = UISetting->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
+	if (GEngine && GEngine->GameViewport)
+	{
+		GameScale = UWidgetLayoutLibrary::GetViewportScale(GEngine->GameViewport);
+
+		FVector2D ViewportSize;
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+		DefaultScale = UISetting->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
+	}
 	
 	return GameScale > 0.f ? DefaultScale / GameScale : 1.f;
 }
