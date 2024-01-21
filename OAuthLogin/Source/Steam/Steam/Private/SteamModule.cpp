@@ -17,9 +17,11 @@ void FSteamModule::StartupModule()
 	UE_LOG(LogSteam, Log, TEXT("FSteamModule::StartupModule"));
 
 #if PLATFORM_ANDROID
-	FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FAndroidSteam>());
+	//FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FAndroidSteam>());
 #elif PLATFORM_IOS
-	FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FIOSSteam>());
+	//FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FIOSSteam>());
+#elseif PLATFORM_WINDOWS
+	FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FWindowsSteam>());
 #endif
 }
 

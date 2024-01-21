@@ -57,12 +57,10 @@ void AndroidBridge::Register(FString serviceClz, FString serviceImpl)
     auto jUnrealClass = FAndroidApplication::FindJavaClass(TDS_BRIDGE_CLASS);
     if (jUnrealClass)
     {
-        const char *strMethod = "register";
-        const char *strServiceClz = TCHAR_TO_UTF8(*serviceClz);
-        const char *strServiceImpl = TCHAR_TO_UTF8(*serviceImpl);
+        const char* strMethod = "register";
 
-        auto jServiceClz = FAndroidApplication::FindJavaClass(strServiceClz);
-        auto jServiceImplClz = FAndroidApplication::FindJavaClass(strServiceImpl);
+        auto jServiceClz = FAndroidApplication::FindJavaClass(TCHAR_TO_UTF8(*serviceClz));
+        auto jServiceImplClz = FAndroidApplication::FindJavaClass(TCHAR_TO_UTF8(*serviceImpl));
         
         auto jServiceImpl = env->NewObject(jServiceImplClz,  env->GetMethodID(jServiceImplClz, "<init>", "()V"));
         auto jRegisterMethod = env->GetMethodID(jUnrealClass, strMethod, "(Ljava/lang/Class;Lcom/tds/common/bridge/IBridgeService;)V");

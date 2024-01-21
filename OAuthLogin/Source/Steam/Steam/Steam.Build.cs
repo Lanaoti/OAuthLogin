@@ -33,14 +33,22 @@ public class Steam : ModuleRules
                 "Engine",
                 "Json",
                 "OAuthLogin",
-                "OnlineSubsystem",
-                "OnlineSubsystemSteam"
+                "OnlineSubsystem"
             });
 
-        DynamicallyLoadedModuleNames.AddRange(
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            PrivateDependencyModuleNames.AddRange(
             new string[]
             {
-
+                "OnlineSubsystemSteam"
             });
+        }
+
+        DynamicallyLoadedModuleNames.AddRange(
+        new string[]
+        {
+
+        });
     }
 }
