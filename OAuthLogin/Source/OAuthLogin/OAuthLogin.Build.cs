@@ -73,7 +73,9 @@ public class OAuthLogin : ModuleRules
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
-                "Core"
+                "Core",
+                "Json",
+                "JsonUtilities"
             });
 
 
@@ -81,9 +83,7 @@ public class OAuthLogin : ModuleRules
             new string[]
             {
                 "CoreUObject",
-                "Engine",
-                "Json",
-                "JsonUtilities"
+                "Engine"
             });
 
         System.Console.WriteLine("-------------------- OAuthLogin Config ---------------------");

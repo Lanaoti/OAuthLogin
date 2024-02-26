@@ -22,7 +22,9 @@ public class Steam : ModuleRules
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
-                "Core"
+                "Core",
+                "Json",
+                "JsonUtilities"
             });
 
 
@@ -31,7 +33,6 @@ public class Steam : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-                "Json",
                 "OAuthLogin",
                 "OnlineSubsystem"
             });
@@ -39,16 +40,16 @@ public class Steam : ModuleRules
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             PrivateDependencyModuleNames.AddRange(
-            new string[]
-            {
-                "OnlineSubsystemSteam"
-            });
+                new string[]
+                {
+                    "OnlineSubsystemSteam"
+                });
         }
 
         DynamicallyLoadedModuleNames.AddRange(
-        new string[]
-        {
+            new string[]
+            {
 
-        });
+            });
     }
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "JsonObjectConverter.h"
 #include "OAuthLoginTypes.generated.h"
 
 
@@ -151,5 +152,14 @@ namespace OAuthLogin
 	template<typename T> FString ToString(T Value)
 	{
 		return FString::Printf(TEXT("%d"), (int32)Value);
+	}
+
+	template<typename T> FString PraseData(const T& Data)
+	{
+		FString Result = "{}";
+
+		FJsonObjectConverter::UStructToJsonObjectString(T::StaticStruct(), &Data, Result);
+		
+		return Result;
 	}
 };
