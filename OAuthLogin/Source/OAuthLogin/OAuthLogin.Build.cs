@@ -54,7 +54,9 @@ public class OAuthLogin : ModuleRules
     public OAuthLogin(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-        
+
+        OptimizeCode = CodeOptimization.InShippingBuildsOnly;
+
         ConfigCache.ReadSettings(DirectoryReference.FromFile(Target.ProjectFile), Target.Platform, this);
 
         PublicIncludePaths.AddRange(

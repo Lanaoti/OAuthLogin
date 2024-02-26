@@ -2,7 +2,11 @@
 
 #include "SteamModule.h"
 #include "OAuthLoginModule.h"
-#if PLATFORM_WINDOWS
+#if PLATFORM_ANDROID
+#include "Android/AndroidSteam.h"
+#elif PLATFORM_IOS
+#include "IOS/IOSSteam.h"
+#elif PLATFORM_WINDOWS
 #include "Windows/WindowsSteam.h"
 #endif
 
@@ -20,7 +24,7 @@ void FSteamModule::StartupModule()
 	//FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FAndroidSteam>());
 #elif PLATFORM_IOS
 	//FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FIOSSteam>());
-#elseif PLATFORM_WINDOWS
+#elif PLATFORM_WINDOWS
 	FOAuthLoginModule::Get().Register(STEAM_CHANNEL_NAME, MakeShared<FWindowsSteam>());
 #endif
 }
