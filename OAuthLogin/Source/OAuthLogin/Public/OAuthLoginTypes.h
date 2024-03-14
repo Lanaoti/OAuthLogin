@@ -58,17 +58,13 @@ struct FOAuthData
 	FString Avatar;
 
 	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	FString Key;
-
-	UPROPERTY(BlueprintReadWrite, Category = OAuthLogin)
-	FString AccessToken;
+	FString AuthToken;
 
 	FOAuthData()
 		: UID(TEXT(""))
 		, Nickname(TEXT(""))
 		, Avatar(TEXT(""))
-		, Key(TEXT(""))
-		, AccessToken(TEXT(""))
+		, AuthToken(TEXT(""))
 	{
 
 	}

@@ -38,57 +38,6 @@ void FWindowsSteam::Init()
 	}
 }
 
-FString PraseOAuthData(IOnlineSubsystem* OnlineSubsystem)
-{
-	check(OnlineSubsystem);
-
-	IOnlineIdentityPtr OnlineIdentity = OnlineSubsystem->GetIdentityInterface();
-	check(OnlineIdentity.IsValid());
-
-	// 获取Steam ID
-	FUniqueNetIdPtr UniqueNetId = OnlineIdentity->GetUniquePlayerId(STEAM_LOCAL_USER_NUM);
-	//check(UniqueNetId.IsValid());
-
-	FString Data = "";
-	
-	if (UniqueNetId.IsValid())
-	{
-		// 获取用户昵称
-		FString Nickname = OnlineIdentity->GetPlayerNickname(*UniqueNetId);
-
-		// 获取用户头像
-		FString Avatar = TEXT("");
-
-		// Key
-		FString Key = TEXT("");
-
-		// AccessToken
-		FString AccessToken = OnlineIdentity->GetAuthToken(STEAM_LOCAL_USER_NUM);
-
-		Data = "{ \"Code\": " + OAuthLogin::ToString(EOAuthResponse::Success) + ", \"Data\": { \
-				\"UID\": \"" + UniqueNetId->ToString() + "\" , \
-				\"Nickname\": \"" + Nickname + "\" , \
-				\"Avatar\": \"" + Avatar + "\" , \
-				\"Key\": \"" + Key + "\" , \
-				\"AccessToken\": \"" + AccessToken + "\" \
-			} \
-		}";
-	}
-	else
-	{
-		Data = "{ \"Code\":" + OAuthLogin::ToString(EOAuthResponse::SystemError) + ", \"Data\": { \
-				\"UID\": \"\" , \
-				\"Nickname\": \"\" , \
-				\"Avatar\": \"\" , \
-				\"Key\": \"\" , \
-				\"AccessToken\": \"\" \
-			} \
-		}";
-	}
-
-	return Data;
-}
-
 void FWindowsSteam::Login()
 {
 	FOAuthLoginPtr LoginChannel = FOAuthLoginModule::Get().GetOAuthLogin(STEAM_CHANNEL_NAME);
@@ -111,8 +60,7 @@ void FWindowsSteam::Login()
 						OAuthData.Data.UID = *UniqueNetId->ToString();
 						OAuthData.Data.Nickname = OnlineIdentity->GetPlayerNickname(*UniqueNetId);
 						OAuthData.Data.Avatar = TEXT("");
-						OAuthData.Data.Key = TEXT("");
-						OAuthData.Data.AccessToken = OnlineIdentity->GetAuthToken(STEAM_LOCAL_USER_NUM);
+						OAuthData.Data.AuthToken = OnlineIdentity->GetAuthToken(STEAM_LOCAL_USER_NUM);
 
 						FString Data = OAuthLogin::PraseData(OAuthData);
 						LoginChannel->OnLoginCompleted.ExecuteIfBound(Data);
@@ -130,8 +78,7 @@ void FWindowsSteam::Login()
 					OAuthData.Data.UID = *UniqueNetId->ToString();
 					OAuthData.Data.Nickname = OnlineIdentity->GetPlayerNickname(*UniqueNetId);
 					OAuthData.Data.Avatar = TEXT("");
-					OAuthData.Data.Key = TEXT("");
-					OAuthData.Data.AccessToken = OnlineIdentity->GetAuthToken(STEAM_LOCAL_USER_NUM);
+					OAuthData.Data.AuthToken = OnlineIdentity->GetAuthToken(STEAM_LOCAL_USER_NUM);
 
 					FString Data = OAuthLogin::PraseData(OAuthData);
 					LoginChannel->OnLoginCompleted.ExecuteIfBound(Data);

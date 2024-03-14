@@ -8,8 +8,8 @@
 #include "OAuthLoginBlueprintLibrary.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOAuthInitDelegate, FName, ChannelName, EOAuthResponse, Code, bool, bWasCompleted);
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FOAuthLoginDelegate, EOAuthResponse, Code, const FOAuthData&, Data);
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOAuthLogoutDelegate, EOAuthResponse, Code);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOAuthLoginDelegate, FName, ChannelName, EOAuthResponse, Code, const FOAuthData&, Data);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOAuthLogoutDelegate, FName, ChannelName, EOAuthResponse, Code);
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FAntiAddictionEventDelegate, EAntiAddictionEvent, Event, EOAuthResponse, Code, const FAntiAddictionData&, Data);
 
 UCLASS()
